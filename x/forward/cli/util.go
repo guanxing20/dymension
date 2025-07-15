@@ -39,6 +39,7 @@ func GetQueryCmd() *cobra.Command {
 	cmd.AddCommand(CmdMemoHLtoIBCRaw())
 	cmd.AddCommand(CmdHLEthTransferRecipientHubAccount())
 	cmd.AddCommand(CmdTestHLtoIBCMessage())
+	cmd.AddCommand(CmdTestHLMessageKaspa())
 	cmd.AddCommand(CmdDecodeHyperlaneMessage())
 	cmd.AddCommand(EstimateEIBCtoHLTransferAmt())
 
@@ -244,6 +245,13 @@ func CmdMemoHLtoIBCRaw() *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("marshal: %w", err)
 				}
+				hlMetadata := &types.HLMetadata{
+					HookForwardToIbc: bz,
+				}
+				bz, err = proto.Marshal(hlMetadata)
+				if err != nil {
+					return fmt.Errorf("marshal: %w", err)
+				}
 				fmt.Printf("%s\n", util.EncodeEthHex(bz))
 			}
 
@@ -267,7 +275,7 @@ func hookForwardToIBC(args []string) (*types.HookForwardToIBC, error) {
 		return nil, fmt.Errorf("ibc timeout duration: %w", err)
 	}
 
-	ibcTimeoutTimestamp := uint64(time.Now().Add(ibcTimeoutDuration).UnixNano())
+	ibcTimeoutTimestamp := uint64(time.Now().Add(ibcTimeoutDuration).UnixNano()) //nolint:gosec
 
 	hook := types.NewHookForwardToIBC(
 		ibcSourceChan,
@@ -371,6 +379,73 @@ dym1yecvrgz7yp26keaxa4r00554uugatxfegk76hz`,
 	return cmd
 }
 
+// Get a (test) message to send in Kaspa payload (Testnet10)
+func CmdTestHLMessageKaspa() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "hl-message-kaspa [token-id] [hub recipient] [amount]",
+		Args:    cobra.ExactArgs(3),
+		Short:   "Get a test message to send in kaspa payload",
+		Example: ``,
+
+		DisableFlagParsing:         true,
+		SuggestionsMinimumDistance: 2,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			hlTokenID, err := util.DecodeHexAddress(args[0])
+			if err != nil {
+				return fmt.Errorf("token id: %w", err)
+			}
+
+			hlRecipient, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return fmt.Errorf("recipient address: %w", err)
+			}
+
+			hlAmt, ok := math.NewIntFromString(args[2])
+			if !ok {
+				return fmt.Errorf("amount")
+			}
+
+			readable, err := cmd.Flags().GetBool(MessageReadableFlag)
+			if err != nil {
+				return fmt.Errorf("encode flag: %w", err)
+			}
+
+			hlSrcContract, err := util.DecodeHexAddress("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80") // arbitrary
+			if err != nil {
+				return fmt.Errorf("counterparty contract: %w", err)
+			}
+
+			m, err := createTestHyperlaneMessage(
+				hypercoretypes.MESSAGE_VERSION,
+				0,        // FIXED AT ZERO
+				80808082, // Kaspa test 10
+				hlSrcContract,
+				1260813472, // HUB HARDCODED
+				hlTokenID,
+				hlRecipient,
+				hlAmt,
+				nil,
+			)
+			if err != nil {
+				return fmt.Errorf("new hl message: %w", err)
+			}
+
+			if readable {
+				fmt.Printf("hyperlane message: %+v\n", m)
+			} else {
+				fmt.Print(m) // encodes with .String()
+			}
+
+			return nil
+		},
+	}
+
+	cmd.Flags().Bool(MessageReadableFlag, false, "Show the message in a readable format")
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
 // Get a value to pass to Ethereum as the recipient of a token transfer on the hub
 func CmdHLEthTransferRecipientHubAccount() *cobra.Command {
 	cmd := &cobra.Command{
@@ -448,7 +523,7 @@ func CmdDecodeHyperlaneMessage() *cobra.Command {
 
 			body := bz
 			if kind == "message" {
-				var message  util.HyperlaneMessage
+				var message util.HyperlaneMessage
 				m, err := util.ParseHyperlaneMessage(bz)
 				if err != nil {
 					return fmt.Errorf(" %w", err)
@@ -468,7 +543,13 @@ func CmdDecodeHyperlaneMessage() *cobra.Command {
 				return fmt.Errorf("parse warp payload: %w", err)
 			}
 			if memo {
-				m, err := types.UnpackForwardToIBC(warpPL.Metadata())
+				hlMetadata, err := types.UnpackHLMetadata(warpPL.Metadata())
+				if err != nil {
+					return fmt.Errorf("unpack hl metadata: %w", err)
+				}
+				fmt.Printf("hl metadata: %+v\n", hlMetadata)
+
+				m, err := types.UnpackForwardToIBC(hlMetadata.HookForwardToIbc)
 				if err != nil {
 					return fmt.Errorf("unpack memo from warp message: %w", err)
 				}
@@ -542,14 +623,22 @@ func MakeForwardToIBCHyperlaneMessage(
 	hyperlaneRecipient sdk.AccAddress, // hub account to get the tokens
 	hyperlaneTokenAmt math.Int, // must be at least hub token amount
 	hook *types.HookForwardToIBC,
-)  (util.HyperlaneMessage, error) {
+) (util.HyperlaneMessage, error) {
 	if err := hook.ValidateBasic(); err != nil {
-		return util.HyperlaneMessage{}, errorsmod.Wrap(err, "validate basic")
+		return util.HyperlaneMessage{}, errorsmod.Wrap(err, "hook validate basic")
 	}
 
 	memoBz, err := proto.Marshal(hook)
 	if err != nil {
-		return util.HyperlaneMessage{}, err
+		return util.HyperlaneMessage{}, errorsmod.Wrap(err, "marshal memo")
+	}
+
+	hlMetadata := &types.HLMetadata{
+		HookForwardToIbc: memoBz,
+	}
+	memoBz, err = proto.Marshal(hlMetadata)
+	if err != nil {
+		return util.HyperlaneMessage{}, errorsmod.Wrap(err, "marshal hl metadata")
 	}
 
 	hlM, err := createTestHyperlaneMessage(
@@ -594,16 +683,16 @@ func createTestHyperlaneMessage(
 	p := sdk.GetConfig().GetBech32AccountAddrPrefix()
 	bech32, err := sdk.Bech32ifyAddressBytes(p, recipient) // TODO: fix
 	if err != nil {
-		return util.HyperlaneMessage{}, err
+		return util.HyperlaneMessage{}, errorsmod.Wrap(err, "bech32ify address bytes")
 	}
 	recip, err := sdk.GetFromBech32(bech32, p) // TODO: fix
 	if err != nil {
-		return util.HyperlaneMessage{}, err
+		return util.HyperlaneMessage{}, errorsmod.Wrap(err, "get from bech32")
 	}
 
 	wmpl, err := warptypes.NewWarpPayload(recip, *big.NewInt(amt.Int64()), memo)
 	if err != nil {
-		return util.HyperlaneMessage{}, err
+		return util.HyperlaneMessage{}, errorsmod.Wrap(err, "new warp payload")
 	}
 
 	body := wmpl.Bytes()
@@ -632,7 +721,13 @@ func decodeHyperlaneMessageEthHexToHyperlaneToEIBCMemo(s string) (*types.HookFor
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "parse warp memo")
 	}
-	d, err := types.UnpackForwardToIBC(pl.Metadata())
+
+	hlMetadata, err := types.UnpackHLMetadata(pl.Metadata())
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "unpack hl metadata")
+	}
+
+	d, err := types.UnpackForwardToIBC(hlMetadata.HookForwardToIbc)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "unpack memo from hl message")
 	}

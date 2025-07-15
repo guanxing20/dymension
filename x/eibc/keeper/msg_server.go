@@ -41,7 +41,7 @@ func (m msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 		return nil, err
 	}
 
-	m.Keeper.SetParams(ctx, req.NewParams)
+	m.SetParams(ctx, req.NewParams)
 	return &types.MsgUpdateParamsResponse{}, nil
 }
 
@@ -90,7 +90,7 @@ func (m msgServer) FulfillOrderAuthorized(goCtx context.Context, msg *types.MsgF
 	}
 
 	// check compat between the fulfillment and current order and packet status
-	if err := m.validateOrder(demandOrder, msg, ctx); err != nil {
+	if err := m.validateOrder(ctx, demandOrder, msg); err != nil {
 		return nil, errorsmod.Wrap(sdkerrors.ErrUnauthorized, err.Error())
 	}
 
@@ -101,7 +101,7 @@ func (m msgServer) FulfillOrderAuthorized(goCtx context.Context, msg *types.MsgF
 		return nil, errorsmod.Wrap(err, "ensure operator fee account")
 	}
 
-	err = m.Keeper.fulfill(ctx, demandOrder, fulfillArgs{
+	err = m.fulfill(ctx, demandOrder, fulfillArgs{
 		FundsSource: lp,
 		Fulfiller:   operator,
 	})
@@ -134,8 +134,7 @@ func (m msgServer) FulfillOrderAuthorized(goCtx context.Context, msg *types.MsgF
 	return &types.MsgFulfillOrderAuthorizedResponse{}, nil
 }
 
-// TODO: rename and fix signature (ctx first)
-func (m msgServer) validateOrder(demandOrder *types.DemandOrder, msg *types.MsgFulfillOrderAuthorized, ctx sdk.Context) error {
+func (m msgServer) validateOrder(ctx sdk.Context, demandOrder *types.DemandOrder, msg *types.MsgFulfillOrderAuthorized) error {
 	if demandOrder.RollappId != msg.RollappId {
 		return types.ErrRollappIdMismatch
 	}
@@ -256,7 +255,13 @@ func (m msgServer) TryFulfillOnDemand(goCtx context.Context, msg *types.MsgTryFu
 		return nil, errorsmod.Wrap(err, "vbasic")
 	}
 
-	return &types.MsgTryFulfillOnDemandResponse{}, m.Keeper.FulfillByOnDemandLP(ctx, msg.OrderId, uint64(msg.Rng))
+	shuffleSeed := uint64(msg.Rng) //nolint:gosec
+	err = m.FulfillByOnDemandLP(ctx, msg.OrderId, shuffleSeed)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgTryFulfillOnDemandResponse{}, nil
 }
 
 func (m msgServer) CreateOnDemandLP(goCtx context.Context, msg *types.MsgCreateOnDemandLP) (*types.MsgCreateOnDemandLPResponse, error) {
@@ -267,7 +272,7 @@ func (m msgServer) CreateOnDemandLP(goCtx context.Context, msg *types.MsgCreateO
 		return nil, errorsmod.Wrap(err, "vbasic")
 	}
 
-	id, err := m.Keeper.CreateLP(ctx, msg.Lp)
+	id, err := m.CreateLP(ctx, msg.Lp)
 	if err != nil {
 		return nil, errorsmod.Wrap(err, "create lp")
 	}
@@ -284,7 +289,7 @@ func (m msgServer) DeleteOnDemandLP(goCtx context.Context, msg *types.MsgDeleteO
 	}
 
 	for _, id := range msg.Ids {
-		err := m.Keeper.DeleteLP(ctx, msg.MustAcc(), id, "user request")
+		err := m.DeleteLP(ctx, msg.MustAcc(), id, "user request")
 		if err != nil {
 			return nil, errorsmod.Wrapf(err, "delete id: %d", id)
 		}

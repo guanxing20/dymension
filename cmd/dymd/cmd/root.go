@@ -46,7 +46,6 @@ import (
 	// this line is used by starport scaffolding # root/moduleImport
 
 	"github.com/dymensionxyz/dymension/v3/app"
-	"github.com/dymensionxyz/dymension/v3/app/params"
 	appparams "github.com/dymensionxyz/dymension/v3/app/params"
 
 	v047 "github.com/cosmos/cosmos-sdk/x/genutil/migrations/v047"
@@ -78,7 +77,7 @@ func (ao EmptyAppOptions) Get(o string) interface{} {
 func NewRootCmd() *cobra.Command {
 	initSDKConfig()
 	tempApp := app.New(log.NewNopLogger(), dbm.NewMemDB(), nil, true, EmptyAppOptions{})
-	encodingConfig := params.EncodingConfig{
+	encodingConfig := appparams.EncodingConfig{
 		InterfaceRegistry: tempApp.InterfaceRegistry(),
 		Codec:             tempApp.AppCodec(),
 		TxConfig:          tempApp.TxConfig(),
@@ -211,12 +210,10 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig appparams.EncodingConfig
 		snapshot.Cmd(newApp),
 	)
 
-	// add genesis commands
-	rootCmd.AddCommand(
-		genesisCommand(encodingConfig.TxConfig, basicManager),
-	)
-
-	// add eth server commands
+	// adds:
+	// - eth server commands
+	// - comet commands
+	// - Start, rollback, etc..
 	ethserver.AddCommands(
 		rootCmd,
 		ethserver.NewDefaultStartOptions(newApp, app.DefaultNodeHome),
@@ -232,6 +229,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig appparams.EncodingConfig
 
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
+		genesisCommand(encodingConfig.TxConfig, basicManager), // genesis related commands
 		server.StatusCommand(),
 		queryCommand(),
 		txCommand(),

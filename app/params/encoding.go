@@ -9,16 +9,16 @@ import (
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 
-	cryptocodec "github.com/evmos/ethermint/crypto/codec"
+	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
+	ethcryptocodec "github.com/evmos/ethermint/crypto/codec"
+
 	eip712 "github.com/evmos/ethermint/ethereum/eip712"
 	ethermint "github.com/evmos/ethermint/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 	"google.golang.org/protobuf/reflect/protoreflect"
 
 	"cosmossdk.io/x/tx/signing"
-	amino "github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
-	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
@@ -30,7 +30,7 @@ import (
 // EncodingConfig specifies the concrete encoding types to use for a given app.
 // This is provided for compatibility between protobuf and amino implementations.
 type EncodingConfig struct {
-	InterfaceRegistry types.InterfaceRegistry
+	InterfaceRegistry codectypes.InterfaceRegistry
 	Codec             codec.Codec
 	TxConfig          client.TxConfig
 	Amino             *codec.LegacyAmino
@@ -38,7 +38,7 @@ type EncodingConfig struct {
 
 // MakeEncodingConfig creates a new EncodingConfig and returns it
 func MakeEncodingConfig() sdktestutil.TestEncodingConfig {
-	cdc := amino.NewLegacyAmino()
+	cdc := codec.NewLegacyAmino()
 
 	signingOptions := signing.Options{
 		AddressCodec: address.Bech32Codec{
@@ -52,11 +52,11 @@ func MakeEncodingConfig() sdktestutil.TestEncodingConfig {
 		},
 	}
 
-	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
+	interfaceRegistry, _ := codectypes.NewInterfaceRegistryWithOptions(codectypes.InterfaceRegistryOptions{
 		ProtoFiles:     proto.HybridResolver,
 		SigningOptions: signingOptions,
 	})
-	codec := amino.NewProtoCodec(interfaceRegistry)
+	codec := codec.NewProtoCodec(interfaceRegistry)
 	RegisterLegacyAminoCodec(cdc)
 	RegisterInterfaces(interfaceRegistry)
 
@@ -77,12 +77,13 @@ func MakeEncodingConfig() sdktestutil.TestEncodingConfig {
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	sdk.RegisterLegacyAminoCodec(cdc)
 	codec.RegisterEvidences(cdc)
-	cryptocodec.RegisterCrypto(cdc)
+	ethcryptocodec.RegisterCrypto(cdc)
 }
 
 // RegisterInterfaces registers Interfaces from types, crypto, and SDK std.
 func RegisterInterfaces(interfaceRegistry codectypes.InterfaceRegistry) {
 	std.RegisterInterfaces(interfaceRegistry)
-	cryptocodec.RegisterInterfaces(interfaceRegistry)
+	ethcryptocodec.RegisterInterfaces(interfaceRegistry)
 	ethermint.RegisterInterfaces(interfaceRegistry)
+	cryptocodec.RegisterInterfaces(interfaceRegistry)
 }

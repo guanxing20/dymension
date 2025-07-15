@@ -21,8 +21,10 @@ import (
 	"github.com/dymensionxyz/dymension/v3/app"
 	"github.com/dymensionxyz/dymension/v3/app/apptesting"
 	v5 "github.com/dymensionxyz/dymension/v3/app/upgrades/v5"
+	dymnsmigration "github.com/dymensionxyz/dymension/v3/app/upgrades/v5/types/dymns"
 	lockupmigration "github.com/dymensionxyz/dymension/v3/app/upgrades/v5/types/lockup"
 	"github.com/dymensionxyz/dymension/v3/x/common/types"
+	dymnstypes "github.com/dymensionxyz/dymension/v3/x/dymns/types"
 	irotypes "github.com/dymensionxyz/dymension/v3/x/iro/types"
 	lockuptypes "github.com/dymensionxyz/dymension/v3/x/lockup/types"
 	rollappkeeper "github.com/dymensionxyz/dymension/v3/x/rollapp/keeper"
@@ -42,6 +44,9 @@ type UpgradeTestSuite struct {
 func (s *UpgradeTestSuite) SetupTestCustom(t *testing.T) {
 	s.App = apptesting.Setup(t)
 	s.Ctx = s.App.BaseApp.NewContext(false).WithBlockHeader(cometbftproto.Header{Height: 1, ChainID: "dymension_100-1", Time: time.Now().UTC()}).WithChainID("dymension_100-1")
+
+	defParams := *apptesting.DefaultConsensusParams
+	s.Ctx = s.Ctx.WithConsensusParams(defParams)
 }
 
 // TestUpgradeTestSuite runs the suite of tests for the upgrade handler
@@ -60,6 +65,8 @@ var (
 		"dym15saxgqw6kvhv6k5sg6r45kmdf4sf88kfw2adcw",
 		"dym17g9cn4ss0h0dz5qhg2cg4zfnee6z3ftg3q6v58",
 	}
+
+	expectedEvidenceMaxAgeNumBlocks = apptesting.DefaultConsensusParams.Evidence.MaxAgeNumBlocks * v5.BlockSpeedup
 )
 
 // TestUpgrade is a method of UpgradeTestSuite to test the upgrade process.
@@ -76,6 +83,8 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 			preUpgrade: func() error {
 				s.setLockupParams()
 				s.setIROParams()
+				s.setGAMMParams()
+				s.setDymNSParams()
 				s.populateSequencers(s.Ctx, s.App.SequencerKeeper)
 				s.populateLivenessEvents(s.Ctx, s.App.RollappKeeper)
 				s.populateIBCChannels()
@@ -117,6 +126,11 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 					return
 				}
 
+				// validate gamm params
+				if err = s.validateGammParamsMigration(); err != nil {
+					return
+				}
+
 				if err = s.validateLivenessEventsMigration(s.Ctx, s.App.RollappKeeper); err != nil {
 					return
 				}
@@ -124,6 +138,9 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 				s.validateSequencersMigration(s.Ctx, s.App.SequencerKeeper)
 
 				s.validateIBCRateLimits()
+
+				// validate consensus params
+				s.validateConsensusParamsMigration()
 
 				return
 			},
@@ -193,6 +210,40 @@ func (s *UpgradeTestSuite) validateIROParamsMigration() error {
 	return nil
 }
 
+func (s *UpgradeTestSuite) setDymNSParams() {
+	params := dymnsmigration.DefaultParams()
+
+	dymnsSubspace := s.App.ParamsKeeper.Subspace(dymnstypes.ModuleName)
+	dymnsSubspace = dymnsSubspace.WithKeyTable(dymnsmigration.ParamKeyTable())
+	dymnsSubspace.SetParamSet(s.Ctx, &params)
+}
+
+func (s *UpgradeTestSuite) setGAMMParams() {
+	params := s.App.GAMMKeeper.GetParams(s.Ctx)
+	params.PoolCreationFee = sdk.NewCoins(sdk.NewCoin("adym", math.NewInt(100000000000000000)),
+		sdk.NewCoin("ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4", math.NewInt(1)))
+	s.App.GAMMKeeper.SetParams(s.Ctx, params)
+}
+
+// validate gamm params
+func (s *UpgradeTestSuite) validateGammParamsMigration() error {
+	params := s.App.GAMMKeeper.GetParams(s.Ctx)
+
+	if len(params.PoolCreationFee) != 1 {
+		return fmt.Errorf("pool creation fee not set correctly")
+	}
+
+	if params.PoolCreationFee[0].Denom != "adym" {
+		return fmt.Errorf("pool creation fee not set correctly")
+	}
+
+	if !params.MinSwapAmount.Equal(math.NewInt(10000000000000000)) {
+		return fmt.Errorf("min swap amount not set correctly")
+	}
+
+	return nil
+}
+
 var livenessEventsBlocks = []int64{0, 100, 200, 300}
 
 func (s *UpgradeTestSuite) populateLivenessEvents(ctx sdk.Context, k *rollappkeeper.Keeper) {
@@ -241,4 +292,10 @@ func (s *UpgradeTestSuite) validateSequencersMigration(ctx sdk.Context, k *seque
 	sequencers := k.AllSequencers(ctx)
 	s.Require().Equal(len(sequencers), 1)
 	s.Require().Equal(v5.NewPenaltyKickThreshold, sequencers[0].GetPenalty())
+}
+
+func (s *UpgradeTestSuite) validateConsensusParamsMigration() {
+	consensusParams, err := s.App.ConsensusParamsKeeper.Params(s.Ctx, nil)
+	s.Require().NoError(err)
+	s.Require().Equal(expectedEvidenceMaxAgeNumBlocks, consensusParams.Params.Evidence.MaxAgeNumBlocks)
 }

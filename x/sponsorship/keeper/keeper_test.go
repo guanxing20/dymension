@@ -37,7 +37,7 @@ type KeeperTestSuite struct {
 // SetupTest sets streamer parameters from the suite's context.
 func (s *KeeperTestSuite) SetupTest() {
 	app := apptesting.Setup(s.T())
-	ctx := app.BaseApp.NewContext(false)
+	ctx := app.NewContext(false)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.SponsorshipKeeper))
@@ -79,10 +79,7 @@ func (s *KeeperTestSuite) CreateEndorsementGauge(rollappId string) uint64 {
 		true,
 		s.App.AccountKeeper.GetModuleAddress(types.ModuleName),
 		sdk.Coins{},
-		incentivestypes.EndorsementGauge{
-			RollappId:    rollappId,
-			EpochRewards: nil,
-		},
+		incentivestypes.EndorsementGauge{RollappId: rollappId},
 		time.Now(),
 		1,
 	)
@@ -128,6 +125,14 @@ func (s *KeeperTestSuite) Vote(vote types.MsgVote) {
 	voteResp, err := s.msgServer.Vote(s.Ctx, &vote)
 	s.Require().NoError(err)
 	s.Require().NotNil(voteResp)
+}
+
+func (s *KeeperTestSuite) RevokeVote(vote types.MsgRevokeVote) {
+	s.T().Helper()
+
+	resp, err := s.msgServer.RevokeVote(s.Ctx, &vote)
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
 }
 
 func (s *KeeperTestSuite) CreateValidator() stakingtypes.ValidatorI {

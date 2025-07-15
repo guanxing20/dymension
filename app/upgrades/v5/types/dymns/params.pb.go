@@ -4,18 +4,19 @@
 package dymns
 
 import (
-	cosmossdk_io_math "cosmossdk.io/math"
 	fmt "fmt"
+	io "io"
+	math "math"
+	math_bits "math/bits"
+	time "time"
+
+	cosmossdk_io_math "cosmossdk.io/math"
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
 	_ "google.golang.org/protobuf/types/known/durationpb"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -362,18 +363,6 @@ func (m *MiscParams) GetEnableTradingAlias() bool {
 		return m.EnableTradingAlias
 	}
 	return false
-}
-
-func init() {
-	proto.RegisterType((*Params)(nil), "dymensionxyz.dymension.dymns.Params")
-	proto.RegisterType((*PriceParams)(nil), "dymensionxyz.dymension.dymns.PriceParams")
-	proto.RegisterType((*ChainsParams)(nil), "dymensionxyz.dymension.dymns.ChainsParams")
-	proto.RegisterType((*AliasesOfChainId)(nil), "dymensionxyz.dymension.dymns.AliasesOfChainId")
-	proto.RegisterType((*MiscParams)(nil), "dymensionxyz.dymension.dymns.MiscParams")
-}
-
-func init() {
-	proto.RegisterFile("dymensionxyz/dymension/dymns/params.proto", fileDescriptor_6097ac65688a2490)
 }
 
 var fileDescriptor_6097ac65688a2490 = []byte{

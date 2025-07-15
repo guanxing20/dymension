@@ -8,6 +8,7 @@ import (
 	hyperwarptypes "github.com/bcp-innovations/hyperlane-cosmos/x/warp/types"
 	ratelimittypes "github.com/cosmos/ibc-apps/modules/rate-limiting/v8/types"
 	"github.com/dymensionxyz/dymension/v3/app/upgrades"
+	kastypes "github.com/dymensionxyz/dymension/v3/x/kas/types"
 )
 
 const (
@@ -21,10 +22,17 @@ var Upgrade = upgrades.Upgrade{
 		Added: []string{
 			hypercoretypes.ModuleName,
 			hyperwarptypes.ModuleName,
+			kastypes.ModuleName,
 			circuittypes.ModuleName,
 			ratelimittypes.ModuleName,
 		},
 	},
+}
+
+var CircuitBreakPermissioned = []string{
+	"dym1fljlkdrsp5qpthxcltahjagzkzw6vgqgpzunv8",
+	"dym1k5rmr6j8fce7el3hr0t3ujya7nqttzh8kyqp56",
+	"dym15vcpft3dwh08c5gr604pmvaukt9lyv4jn6e03t",
 }
 
 const (
