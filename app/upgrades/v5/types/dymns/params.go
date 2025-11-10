@@ -204,13 +204,13 @@ func NewParams(
 // Validate checks that the parameters have valid values.
 func (m *Params) Validate() error {
 	if err := m.Price.Validate(); err != nil {
-		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "price params: %v", err)
+		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "price params: %v", err.Error())
 	}
 	if err := m.Chains.Validate(); err != nil {
-		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "chains params: %v", err)
+		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "chains params: %v", err.Error())
 	}
 	if err := m.Misc.Validate(); err != nil {
-		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "misc params: %v", err)
+		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "misc params: %v", err.Error())
 	}
 	return nil
 }
@@ -250,7 +250,7 @@ func (m MiscParams) Validate() error {
 }
 
 // validateEpochIdentifier checks if the given epoch identifier is valid.
-func validateEpochIdentifier(i interface{}) error {
+func validateEpochIdentifier(i any) error {
 	v, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
@@ -267,7 +267,7 @@ func validateEpochIdentifier(i interface{}) error {
 }
 
 // validatePriceParams checks if the given PriceParams are valid.
-func validatePriceParams(i interface{}) error {
+func validatePriceParams(i any) error {
 	m, ok := i.(PriceParams)
 	if !ok {
 		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "invalid parameter type: %T", i)
@@ -380,7 +380,7 @@ func validateAliasPriceParams(m PriceParams) error {
 }
 
 // validateChainsParams checks if the given ChainsParams are valid.
-func validateChainsParams(i interface{}) error {
+func validateChainsParams(i any) error {
 	m, ok := i.(ChainsParams)
 	if !ok {
 		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "invalid parameter type: %T", i)
@@ -434,14 +434,14 @@ func validateAliasesOfChainIds(aliasesOfChainIds []AliasesOfChainId) error {
 }
 
 // validateMiscParams checks if the given MiscParams are valid.
-func validateMiscParams(i interface{}) error {
+func validateMiscParams(i any) error {
 	m, ok := i.(MiscParams)
 	if !ok {
 		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "invalid parameter type: %T", i)
 	}
 
 	if err := validateEpochIdentifier(m.EndEpochHookIdentifier); err != nil {
-		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "end epoch hook identifier: %v", err)
+		return errorsmod.Wrapf(gerrc.ErrInvalidArgument, "end epoch hook identifier: %v", err.Error())
 	}
 
 	const minGracePeriodDuration = 30 * // number of days

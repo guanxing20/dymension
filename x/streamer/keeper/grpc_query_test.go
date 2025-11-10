@@ -5,9 +5,23 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	common "github.com/dymensionxyz/dymension/v3/x/common/types"
 
+	sponsorshiptypes "github.com/dymensionxyz/dymension/v3/x/sponsorship/types"
 	"github.com/dymensionxyz/dymension/v3/x/streamer/types"
 )
+
+// TestGRPCParams tests querying params via gRPC returns the correct response.
+func (suite *KeeperTestSuite) TestGRPCParams() {
+	res, err := suite.querier.Params(suite.Ctx, &types.ParamsRequest{})
+	suite.Require().NoError(err)
+	suite.Require().NotNil(res)
+	suite.Require().NotNil(res.Params)
+
+	// Check that we get the expected default params
+	expectedParams := suite.App.StreamerKeeper.GetParams(suite.Ctx)
+	suite.Require().Equal(expectedParams, res.Params)
+}
 
 // TestGRPCStreamByID tests querying streams via gRPC returns the correct response.
 func (suite *KeeperTestSuite) TestGRPCStreamByID() {
@@ -247,4 +261,158 @@ func (suite *KeeperTestSuite) TestGRPCToDistributeCoins() {
 	res, err = suite.querier.ModuleToDistributeCoins(suite.Ctx, &types.ModuleToDistributeCoinsRequest{})
 	suite.Require().NoError(err)
 	suite.Require().Equal(res.Coins, sdk.Coins{sdk.NewInt64Coin("stake", 280000)})
+}
+
+func (s *KeeperTestSuite) TestPumpPressure() {
+	// Setup: Create rollapps and plans
+	ra1 := s.CreateDefaultRollapp()
+	ra2 := s.CreateDefaultRollapp()
+
+	s.CreateDefaultPlan(ra1)
+	s.CreateDefaultPlan(ra2)
+
+	val := s.CreateValidator()
+	valAddr, _ := sdk.ValAddressFromBech32(val.GetOperator())
+
+	// Gauges 3 and 4 are rollapp gauges
+	del1 := s.CreateDelegator(valAddr, common.DYM.MulRaw(100))
+	vote1 := sponsorshiptypes.MsgVote{
+		Voter: del1.GetDelegatorAddr(),
+		Weights: []sponsorshiptypes.GaugeWeight{
+			{GaugeId: 3, Weight: common.DYM.MulRaw(60)},
+			{GaugeId: 4, Weight: common.DYM.MulRaw(40)},
+		},
+	}
+	s.Vote(vote1)
+
+	del2 := s.CreateDelegator(valAddr, common.DYM.MulRaw(100))
+	vote2 := sponsorshiptypes.MsgVote{
+		Voter: del2.GetDelegatorAddr(),
+		Weights: []sponsorshiptypes.GaugeWeight{
+			{GaugeId: 3, Weight: common.DYM.MulRaw(40)},
+			{GaugeId: 4, Weight: common.DYM.MulRaw(10)},
+		},
+	}
+	s.Vote(vote2)
+
+	err := s.App.TxFeesKeeper.SetBaseDenom(s.Ctx, "adym")
+	s.Require().NoError(err)
+
+	// Create first stream with top 2 rollapps and activate it
+	coins1 := sdk.NewCoins(common.DymUint64(30))
+	stream1ID, stream1 := s.CreatePumpStream(types.CreateStreamGeneric{
+		Coins:             coins1,
+		StartTime:         time.Now(),
+		EpochIdentifier:   "day",
+		NumEpochsPaidOver: 30,
+	}, 1, types.PumpDistr_PUMP_DISTR_UNIFORM, false, types.PumpTargetRollapps(2))
+	s.Ctx = s.Ctx.WithBlockTime(stream1.StartTime.Add(time.Second))
+	err = s.App.StreamerKeeper.MoveUpcomingStreamToActiveStream(s.Ctx, *stream1)
+	s.Require().NoError(err)
+
+	// Create second stream with top 1 rollapp only and activate it
+	coins2 := sdk.NewCoins(common.DymUint64(15))
+	stream2ID, stream2 := s.CreatePumpStream(types.CreateStreamGeneric{
+		Coins:             coins2,
+		StartTime:         time.Now(),
+		EpochIdentifier:   "day",
+		NumEpochsPaidOver: 30,
+	}, 1, types.PumpDistr_PUMP_DISTR_UNIFORM, false, types.PumpTargetRollapps(1))
+	s.Ctx = s.Ctx.WithBlockTime(stream2.StartTime.Add(time.Second))
+	err = s.App.StreamerKeeper.MoveUpcomingStreamToActiveStream(s.Ctx, *stream2)
+	s.Require().NoError(err)
+
+	// Expected values:
+	//
+	// RA1 has 100/200 of power.
+	// RA2 has 50 /200 of power.
+	//
+	// 1st stream:
+	// Has 30 DYM for top 2 => choose RA1 and RA2.
+	// RA1 + RA2 have a total 150 DYM VP.
+	// Normalize RA1 and RA2 => RA1 gets 2/3, RA2 gets 1/3.
+	// RA1 gets 20 DYM, RA2 gets 10 DYM.
+	//
+	// 2nd stream:
+	// Has 15 DYM for top 1 => choose RA1.
+	// RA1 has a total 100 DYM VP.
+	// Normalize RA1 => RA1 gets 100%.
+	// RA1 gets 15 DYM.
+
+	expectedPressureRA1 := common.DYM.MulRaw(35) // 20 + 15
+	expectedPressureRA2 := common.DYM.MulRaw(10) // 10 + 0
+	expectedPressureStream1RA1 := common.DYM.MulRaw(20)
+	expectedPressureStream1RA2 := common.DYM.MulRaw(10)
+	expectedPressureStream2RA1 := common.DYM.MulRaw(15)
+
+	// Define test cases
+	tests := []struct {
+		name     string
+		testFunc func(s *KeeperTestSuite)
+	}{
+		{
+			name: "PumpPressure - returns all rollapp pressures",
+			testFunc: func(s *KeeperTestSuite) {
+				res, err := s.querier.PumpPressure(s.Ctx, &types.PumpPressureRequest{})
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.Pressure, 2)
+
+				s.Require().Equal(expectedPressureRA1, res.Pressure[0].Pressure,
+					"expected: %s, got: %s", expectedPressureRA1, res.Pressure[0].Pressure)
+				s.Require().Equal(expectedPressureRA2, res.Pressure[1].Pressure,
+					"expected: %s, got: %s", expectedPressureRA2, res.Pressure[1].Pressure)
+			},
+		},
+		{
+			name: "PumpPressureByRollapp - returns specific rollapp pressure",
+			testFunc: func(s *KeeperTestSuite) {
+				res, err := s.querier.PumpPressureByRollapp(s.Ctx, &types.PumpPressureByRollappRequest{
+					RollappId: ra1,
+				})
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+
+				s.Require().Equal(expectedPressureRA1, res.Pressure.Pressure,
+					"expected: %s, got: %s", expectedPressureRA1, res.Pressure.Pressure)
+			},
+		},
+		{
+			name: "PumpPressureByStream - num rollapps equal to top",
+			testFunc: func(s *KeeperTestSuite) {
+				res, err := s.querier.PumpPressureByStream(s.Ctx, &types.PumpPressureByStreamRequest{
+					StreamId: stream1ID,
+				})
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.Pressure, 2)
+
+				s.Require().Equal(expectedPressureStream1RA1, res.Pressure[0].Pressure,
+					"expected: %s, got: %s", expectedPressureRA1, res.Pressure[0].Pressure)
+				s.Require().Equal(expectedPressureStream1RA2, res.Pressure[1].Pressure,
+					"expected: %s, got: %s", expectedPressureRA2, res.Pressure[1].Pressure)
+			},
+		},
+		{
+			name: "PumpPressureByStream - more rollapps than in top",
+			testFunc: func(s *KeeperTestSuite) {
+				res, err := s.querier.PumpPressureByStream(s.Ctx, &types.PumpPressureByStreamRequest{
+					StreamId: stream2ID,
+				})
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.Pressure, 1)
+
+				s.Require().Equal(expectedPressureStream2RA1, res.Pressure[0].Pressure,
+					"expected: %s, got: %s", expectedPressureRA1, res.Pressure[0].Pressure)
+			},
+		},
+	}
+
+	// Run test cases
+	for _, tc := range tests {
+		s.Run(tc.name, func() {
+			tc.testFunc(s)
+		})
+	}
 }

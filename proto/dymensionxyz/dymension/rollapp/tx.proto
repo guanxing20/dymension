@@ -1,17 +1,17 @@
 syntax = "proto3";
 package dymensionxyz.dymension.rollapp;
 
-option go_package = "github.com/dymensionxyz/dymension/v3/x/rollapp/types";
-
-import "cosmos/msg/v1/msg.proto";
-import "dymensionxyz/dymension/rollapp/block_descriptor.proto";
-import "dymensionxyz/dymension/rollapp/rollapp.proto";
-import "dymensionxyz/dymension/rollapp/metadata.proto";
-import "dymensionxyz/dymension/rollapp/genesis_info.proto";
-import "dymensionxyz/dymension/rollapp/params.proto";
-import "gogoproto/gogo.proto";
-import "cosmos_proto/cosmos.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+import "dymensionxyz/dymension/rollapp/block_descriptor.proto";
+import "dymensionxyz/dymension/rollapp/genesis_info.proto";
+import "dymensionxyz/dymension/rollapp/metadata.proto";
+import "dymensionxyz/dymension/rollapp/params.proto";
+import "dymensionxyz/dymension/rollapp/rollapp.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/dymensionxyz/dymension/v3/x/rollapp/types";
 
 // Msg defines the Msg service.
 service Msg {
@@ -31,6 +31,10 @@ service Msg {
   rpc RemoveApp(MsgRemoveApp) returns (MsgRemoveAppResponse);
   rpc MarkObsoleteRollapps(MsgMarkObsoleteRollapps)
       returns (MsgMarkObsoleteRollappsResponse);
+
+  rpc FastFinalizeWithTEE(MsgFastFinalizeWithTEE)
+      returns (MsgFastFinalizeWithTEEResponse);
+  rpc ToggleTEE(MsgToggleTEE) returns (MsgToggleTEEResponse);
 }
 
 // MsgUpdateParams allows to update module params.
@@ -70,6 +74,9 @@ message MsgCreateRollapp {
   GenesisInfo genesis_info = 14 [ (gogoproto.nullable) = true ];
   // vm_type is the type of rollapp machine: EVM or WASM
   Rollapp.VMType vm_type = 15;
+  // fee_denom is OPTIONAL denom used for paying rollapp registration fees. If
+  // not provided, the default fee denom will be used.
+  string fee_denom = 17;
 }
 
 message MsgCreateRollappResponse {}
@@ -211,3 +218,46 @@ message MsgMarkObsoleteRollapps {
 }
 
 message MsgMarkObsoleteRollappsResponse {}
+
+// MsgFastFinalizeWithTEE fast-finalizes rollapp state using TEE attestation
+message MsgFastFinalizeWithTEE {
+  option (cosmos.msg.v1.signer) = "creator";
+
+  // creator must be the active sequencer for the rollapp
+  string creator = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // attestation_token is the JWT token from GCP
+  string attestation_token = 4;
+
+  // nonce contains the data that was signed by TEE
+  TEENonce nonce = 5 [ (gogoproto.nullable) = false ];
+}
+
+// what the verifying full node inside the tee actually attests over
+message TEENonce {
+  string rollapp_id = 1;
+  string hub_chain_id = 2;
+  // an already finalized height the TEE started at
+  uint64 finalized_height = 3;
+  // height TEE recently validated
+  uint64 curr_height = 4;
+  //// stateRoot/appHash is a 32 byte array of the hash of the block
+  bytes state_root = 5;
+}
+
+// MsgFastFinalizeWithTEEResponse is the response for MsgFastFinalizeWithTEE
+message MsgFastFinalizeWithTEEResponse {}
+
+
+// MsgToggleTEE toggles the TEE feature for a rollapp
+message MsgToggleTEE {
+  option (cosmos.msg.v1.signer) = "owner";
+
+  // owner is the bech32-encoded address of the rollapp owner
+  string owner = 1;
+  string rollapp_id = 2;
+  // enable is true if the TEE feature should be enabled, false otherwise
+  bool enable = 3;
+}
+
+message MsgToggleTEEResponse {}

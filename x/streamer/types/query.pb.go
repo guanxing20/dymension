@@ -33,6 +33,86 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+type ParamsRequest struct {
+}
+
+func (m *ParamsRequest) Reset()         { *m = ParamsRequest{} }
+func (m *ParamsRequest) String() string { return proto.CompactTextString(m) }
+func (*ParamsRequest) ProtoMessage()    {}
+func (*ParamsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c65f82d7b21eb3c7, []int{0}
+}
+func (m *ParamsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ParamsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ParamsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ParamsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ParamsRequest.Merge(m, src)
+}
+func (m *ParamsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *ParamsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ParamsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ParamsRequest proto.InternalMessageInfo
+
+type ParamsResponse struct {
+	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+}
+
+func (m *ParamsResponse) Reset()         { *m = ParamsResponse{} }
+func (m *ParamsResponse) String() string { return proto.CompactTextString(m) }
+func (*ParamsResponse) ProtoMessage()    {}
+func (*ParamsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c65f82d7b21eb3c7, []int{1}
+}
+func (m *ParamsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ParamsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ParamsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ParamsResponse.Merge(m, src)
+}
+func (m *ParamsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *ParamsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ParamsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ParamsResponse proto.InternalMessageInfo
+
+func (m *ParamsResponse) GetParams() Params {
+	if m != nil {
+		return m.Params
+	}
+	return Params{}
+}
+
 type ModuleToDistributeCoinsRequest struct {
 }
 
@@ -40,7 +120,7 @@ func (m *ModuleToDistributeCoinsRequest) Reset()         { *m = ModuleToDistribu
 func (m *ModuleToDistributeCoinsRequest) String() string { return proto.CompactTextString(m) }
 func (*ModuleToDistributeCoinsRequest) ProtoMessage()    {}
 func (*ModuleToDistributeCoinsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{0}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{2}
 }
 func (m *ModuleToDistributeCoinsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -78,7 +158,7 @@ func (m *ModuleToDistributeCoinsResponse) Reset()         { *m = ModuleToDistrib
 func (m *ModuleToDistributeCoinsResponse) String() string { return proto.CompactTextString(m) }
 func (*ModuleToDistributeCoinsResponse) ProtoMessage()    {}
 func (*ModuleToDistributeCoinsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{1}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{3}
 }
 func (m *ModuleToDistributeCoinsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -123,7 +203,7 @@ func (m *StreamByIDRequest) Reset()         { *m = StreamByIDRequest{} }
 func (m *StreamByIDRequest) String() string { return proto.CompactTextString(m) }
 func (*StreamByIDRequest) ProtoMessage()    {}
 func (*StreamByIDRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{2}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{4}
 }
 func (m *StreamByIDRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -168,7 +248,7 @@ func (m *StreamByIDResponse) Reset()         { *m = StreamByIDResponse{} }
 func (m *StreamByIDResponse) String() string { return proto.CompactTextString(m) }
 func (*StreamByIDResponse) ProtoMessage()    {}
 func (*StreamByIDResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{3}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{5}
 }
 func (m *StreamByIDResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -213,7 +293,7 @@ func (m *StreamsRequest) Reset()         { *m = StreamsRequest{} }
 func (m *StreamsRequest) String() string { return proto.CompactTextString(m) }
 func (*StreamsRequest) ProtoMessage()    {}
 func (*StreamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{4}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{6}
 }
 func (m *StreamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -260,7 +340,7 @@ func (m *StreamsResponse) Reset()         { *m = StreamsResponse{} }
 func (m *StreamsResponse) String() string { return proto.CompactTextString(m) }
 func (*StreamsResponse) ProtoMessage()    {}
 func (*StreamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{5}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{7}
 }
 func (m *StreamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -312,7 +392,7 @@ func (m *ActiveStreamsRequest) Reset()         { *m = ActiveStreamsRequest{} }
 func (m *ActiveStreamsRequest) String() string { return proto.CompactTextString(m) }
 func (*ActiveStreamsRequest) ProtoMessage()    {}
 func (*ActiveStreamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{6}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{8}
 }
 func (m *ActiveStreamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -359,7 +439,7 @@ func (m *ActiveStreamsResponse) Reset()         { *m = ActiveStreamsResponse{} }
 func (m *ActiveStreamsResponse) String() string { return proto.CompactTextString(m) }
 func (*ActiveStreamsResponse) ProtoMessage()    {}
 func (*ActiveStreamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{7}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{9}
 }
 func (m *ActiveStreamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -411,7 +491,7 @@ func (m *UpcomingStreamsRequest) Reset()         { *m = UpcomingStreamsRequest{}
 func (m *UpcomingStreamsRequest) String() string { return proto.CompactTextString(m) }
 func (*UpcomingStreamsRequest) ProtoMessage()    {}
 func (*UpcomingStreamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{8}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{10}
 }
 func (m *UpcomingStreamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -458,7 +538,7 @@ func (m *UpcomingStreamsResponse) Reset()         { *m = UpcomingStreamsResponse
 func (m *UpcomingStreamsResponse) String() string { return proto.CompactTextString(m) }
 func (*UpcomingStreamsResponse) ProtoMessage()    {}
 func (*UpcomingStreamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_c65f82d7b21eb3c7, []int{9}
+	return fileDescriptor_c65f82d7b21eb3c7, []int{11}
 }
 func (m *UpcomingStreamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -501,7 +581,289 @@ func (m *UpcomingStreamsResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
+type PumpPressureRequest struct {
+	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *PumpPressureRequest) Reset()         { *m = PumpPressureRequest{} }
+func (m *PumpPressureRequest) String() string { return proto.CompactTextString(m) }
+func (*PumpPressureRequest) ProtoMessage()    {}
+func (*PumpPressureRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c65f82d7b21eb3c7, []int{12}
+}
+func (m *PumpPressureRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *PumpPressureRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_PumpPressureRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *PumpPressureRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PumpPressureRequest.Merge(m, src)
+}
+func (m *PumpPressureRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *PumpPressureRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PumpPressureRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PumpPressureRequest proto.InternalMessageInfo
+
+func (m *PumpPressureRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+type PumpPressureResponse struct {
+	Pressure   []PumpPressure      `protobuf:"bytes,1,rep,name=pressure,proto3" json:"pressure"`
+	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *PumpPressureResponse) Reset()         { *m = PumpPressureResponse{} }
+func (m *PumpPressureResponse) String() string { return proto.CompactTextString(m) }
+func (*PumpPressureResponse) ProtoMessage()    {}
+func (*PumpPressureResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c65f82d7b21eb3c7, []int{13}
+}
+func (m *PumpPressureResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *PumpPressureResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_PumpPressureResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *PumpPressureResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PumpPressureResponse.Merge(m, src)
+}
+func (m *PumpPressureResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *PumpPressureResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PumpPressureResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PumpPressureResponse proto.InternalMessageInfo
+
+func (m *PumpPressureResponse) GetPressure() []PumpPressure {
+	if m != nil {
+		return m.Pressure
+	}
+	return nil
+}
+
+func (m *PumpPressureResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+type PumpPressureByRollappRequest struct {
+	RollappId string `protobuf:"bytes,1,opt,name=rollapp_id,json=rollappId,proto3" json:"rollapp_id,omitempty"`
+}
+
+func (m *PumpPressureByRollappRequest) Reset()         { *m = PumpPressureByRollappRequest{} }
+func (m *PumpPressureByRollappRequest) String() string { return proto.CompactTextString(m) }
+func (*PumpPressureByRollappRequest) ProtoMessage()    {}
+func (*PumpPressureByRollappRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c65f82d7b21eb3c7, []int{14}
+}
+func (m *PumpPressureByRollappRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *PumpPressureByRollappRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_PumpPressureByRollappRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *PumpPressureByRollappRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PumpPressureByRollappRequest.Merge(m, src)
+}
+func (m *PumpPressureByRollappRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *PumpPressureByRollappRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PumpPressureByRollappRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PumpPressureByRollappRequest proto.InternalMessageInfo
+
+func (m *PumpPressureByRollappRequest) GetRollappId() string {
+	if m != nil {
+		return m.RollappId
+	}
+	return ""
+}
+
+type PumpPressureByRollappResponse struct {
+	Pressure PumpPressure `protobuf:"bytes,1,opt,name=pressure,proto3" json:"pressure"`
+}
+
+func (m *PumpPressureByRollappResponse) Reset()         { *m = PumpPressureByRollappResponse{} }
+func (m *PumpPressureByRollappResponse) String() string { return proto.CompactTextString(m) }
+func (*PumpPressureByRollappResponse) ProtoMessage()    {}
+func (*PumpPressureByRollappResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c65f82d7b21eb3c7, []int{15}
+}
+func (m *PumpPressureByRollappResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *PumpPressureByRollappResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_PumpPressureByRollappResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *PumpPressureByRollappResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PumpPressureByRollappResponse.Merge(m, src)
+}
+func (m *PumpPressureByRollappResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *PumpPressureByRollappResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PumpPressureByRollappResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PumpPressureByRollappResponse proto.InternalMessageInfo
+
+func (m *PumpPressureByRollappResponse) GetPressure() PumpPressure {
+	if m != nil {
+		return m.Pressure
+	}
+	return PumpPressure{}
+}
+
+type PumpPressureByStreamRequest struct {
+	StreamId uint64 `protobuf:"varint,1,opt,name=stream_id,json=streamId,proto3" json:"stream_id,omitempty"`
+}
+
+func (m *PumpPressureByStreamRequest) Reset()         { *m = PumpPressureByStreamRequest{} }
+func (m *PumpPressureByStreamRequest) String() string { return proto.CompactTextString(m) }
+func (*PumpPressureByStreamRequest) ProtoMessage()    {}
+func (*PumpPressureByStreamRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c65f82d7b21eb3c7, []int{16}
+}
+func (m *PumpPressureByStreamRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *PumpPressureByStreamRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_PumpPressureByStreamRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *PumpPressureByStreamRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PumpPressureByStreamRequest.Merge(m, src)
+}
+func (m *PumpPressureByStreamRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *PumpPressureByStreamRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_PumpPressureByStreamRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PumpPressureByStreamRequest proto.InternalMessageInfo
+
+func (m *PumpPressureByStreamRequest) GetStreamId() uint64 {
+	if m != nil {
+		return m.StreamId
+	}
+	return 0
+}
+
+type PumpPressureByStreamResponse struct {
+	Pressure   []PumpPressure      `protobuf:"bytes,1,rep,name=pressure,proto3" json:"pressure"`
+	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *PumpPressureByStreamResponse) Reset()         { *m = PumpPressureByStreamResponse{} }
+func (m *PumpPressureByStreamResponse) String() string { return proto.CompactTextString(m) }
+func (*PumpPressureByStreamResponse) ProtoMessage()    {}
+func (*PumpPressureByStreamResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_c65f82d7b21eb3c7, []int{17}
+}
+func (m *PumpPressureByStreamResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *PumpPressureByStreamResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_PumpPressureByStreamResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *PumpPressureByStreamResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PumpPressureByStreamResponse.Merge(m, src)
+}
+func (m *PumpPressureByStreamResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *PumpPressureByStreamResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_PumpPressureByStreamResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PumpPressureByStreamResponse proto.InternalMessageInfo
+
+func (m *PumpPressureByStreamResponse) GetPressure() []PumpPressure {
+	if m != nil {
+		return m.Pressure
+	}
+	return nil
+}
+
+func (m *PumpPressureByStreamResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
 func init() {
+	proto.RegisterType((*ParamsRequest)(nil), "dymensionxyz.dymension.streamer.ParamsRequest")
+	proto.RegisterType((*ParamsResponse)(nil), "dymensionxyz.dymension.streamer.ParamsResponse")
 	proto.RegisterType((*ModuleToDistributeCoinsRequest)(nil), "dymensionxyz.dymension.streamer.ModuleToDistributeCoinsRequest")
 	proto.RegisterType((*ModuleToDistributeCoinsResponse)(nil), "dymensionxyz.dymension.streamer.ModuleToDistributeCoinsResponse")
 	proto.RegisterType((*StreamByIDRequest)(nil), "dymensionxyz.dymension.streamer.StreamByIDRequest")
@@ -512,6 +874,12 @@ func init() {
 	proto.RegisterType((*ActiveStreamsResponse)(nil), "dymensionxyz.dymension.streamer.ActiveStreamsResponse")
 	proto.RegisterType((*UpcomingStreamsRequest)(nil), "dymensionxyz.dymension.streamer.UpcomingStreamsRequest")
 	proto.RegisterType((*UpcomingStreamsResponse)(nil), "dymensionxyz.dymension.streamer.UpcomingStreamsResponse")
+	proto.RegisterType((*PumpPressureRequest)(nil), "dymensionxyz.dymension.streamer.PumpPressureRequest")
+	proto.RegisterType((*PumpPressureResponse)(nil), "dymensionxyz.dymension.streamer.PumpPressureResponse")
+	proto.RegisterType((*PumpPressureByRollappRequest)(nil), "dymensionxyz.dymension.streamer.PumpPressureByRollappRequest")
+	proto.RegisterType((*PumpPressureByRollappResponse)(nil), "dymensionxyz.dymension.streamer.PumpPressureByRollappResponse")
+	proto.RegisterType((*PumpPressureByStreamRequest)(nil), "dymensionxyz.dymension.streamer.PumpPressureByStreamRequest")
+	proto.RegisterType((*PumpPressureByStreamResponse)(nil), "dymensionxyz.dymension.streamer.PumpPressureByStreamResponse")
 }
 
 func init() {
@@ -519,51 +887,69 @@ func init() {
 }
 
 var fileDescriptor_c65f82d7b21eb3c7 = []byte{
-	// 695 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x96, 0xcf, 0x6b, 0x13, 0x41,
-	0x14, 0xc7, 0x33, 0xb1, 0x3f, 0x60, 0x8a, 0x2d, 0x0e, 0xd5, 0xd6, 0x20, 0x9b, 0xb2, 0x82, 0x86,
-	0xaa, 0x3b, 0x4d, 0x62, 0xad, 0x3f, 0x90, 0xda, 0xb4, 0x28, 0x1e, 0x44, 0x8d, 0x16, 0xc4, 0x83,
-	0x71, 0x36, 0x3b, 0xae, 0x83, 0xcd, 0x4e, 0x9a, 0x99, 0x2d, 0x8d, 0xe2, 0x45, 0xfc, 0x03, 0x04,
-	0xcf, 0x7a, 0x11, 0x2f, 0xde, 0x3c, 0x79, 0x11, 0xbc, 0xf6, 0x58, 0xf0, 0xe2, 0xc9, 0x1f, 0xad,
-	0x7f, 0x88, 0x64, 0x66, 0x36, 0x3f, 0x6a, 0xeb, 0x6e, 0x85, 0x42, 0x4f, 0xd9, 0xc9, 0x7b, 0xdf,
-	0xef, 0xfb, 0xbc, 0x97, 0xdd, 0xb7, 0x81, 0xa7, 0xbc, 0x66, 0x8d, 0x06, 0x82, 0xf1, 0x60, 0xb5,
-	0xf9, 0x14, 0xb7, 0x0f, 0x58, 0xc8, 0x06, 0x25, 0x35, 0xda, 0xc0, 0xcb, 0x21, 0x6d, 0x34, 0x9d,
-	0x7a, 0x83, 0x4b, 0x8e, 0xb2, 0xdd, 0xc9, 0x4e, 0xfb, 0xe0, 0x44, 0xc9, 0x99, 0x51, 0x9f, 0xfb,
-	0x5c, 0xe5, 0xe2, 0xd6, 0x95, 0x96, 0x65, 0x8e, 0xf9, 0x9c, 0xfb, 0x4b, 0x14, 0x93, 0x3a, 0xc3,
-	0x24, 0x08, 0xb8, 0x24, 0x92, 0xf1, 0x40, 0x98, 0xa8, 0x65, 0xa2, 0xea, 0xe4, 0x86, 0x8f, 0xb0,
-	0x17, 0x36, 0x54, 0x42, 0x14, 0xaf, 0x72, 0x51, 0xe3, 0x02, 0xbb, 0x44, 0x50, 0xbc, 0x92, 0x77,
-	0xa9, 0x24, 0x79, 0x5c, 0xe5, 0x2c, 0x8a, 0x4f, 0x76, 0xc7, 0x15, 0x6d, 0x3b, 0xab, 0x4e, 0x7c,
-	0x16, 0x74, 0x7b, 0x9d, 0x8e, 0xeb, 0x56, 0x5f, 0xe8, 0x6c, 0x7b, 0x02, 0x5a, 0x37, 0xb8, 0x17,
-	0x2e, 0xd1, 0xbb, 0x7c, 0x81, 0x09, 0xd9, 0x60, 0x6e, 0x28, 0xe9, 0x3c, 0x67, 0x81, 0x28, 0xd3,
-	0xe5, 0x90, 0x0a, 0x69, 0xbf, 0x04, 0x30, 0xbb, 0x63, 0x8a, 0xa8, 0xf3, 0x40, 0x50, 0x44, 0x60,
-	0x7f, 0x8b, 0x56, 0x8c, 0x83, 0x89, 0x03, 0xb9, 0xa1, 0xc2, 0x51, 0x47, 0xf3, 0x3a, 0x2d, 0x5e,
-	0xc7, 0x90, 0x3a, 0x2d, 0x49, 0x69, 0x6a, 0xed, 0x7b, 0x36, 0xf5, 0xe1, 0x47, 0x36, 0xe7, 0x33,
-	0xf9, 0x38, 0x74, 0x9d, 0x2a, 0xaf, 0x61, 0xd3, 0x9c, 0xfe, 0x38, 0x23, 0xbc, 0x27, 0x58, 0x36,
-	0xeb, 0x54, 0x38, 0xba, 0x86, 0x76, 0xb6, 0x8f, 0xc3, 0x43, 0x77, 0x14, 0x78, 0xa9, 0x79, 0x7d,
-	0xc1, 0xb0, 0xa1, 0x61, 0x98, 0x66, 0xde, 0x38, 0x98, 0x00, 0xb9, 0xbe, 0x72, 0x9a, 0x79, 0xf6,
-	0x22, 0x44, 0xdd, 0x49, 0x86, 0x6e, 0x16, 0x0e, 0xe8, 0x9e, 0x55, 0xe6, 0x50, 0xe1, 0xa4, 0x13,
-	0xf3, 0x1b, 0x3b, 0xda, 0xa4, 0x6c, 0x64, 0xf6, 0x3d, 0x38, 0xac, 0xbf, 0x89, 0x86, 0x82, 0xae,
-	0x42, 0xd8, 0x19, 0xbc, 0xb1, 0x3d, 0xd1, 0xd3, 0xb5, 0xbe, 0xa7, 0xa2, 0xde, 0x6f, 0x11, 0x9f,
-	0x1a, 0x6d, 0xb9, 0x4b, 0x69, 0xbf, 0x01, 0x70, 0xa4, 0x6d, 0x6d, 0x70, 0xe7, 0x60, 0x9f, 0x47,
-	0x24, 0x31, 0xb3, 0x4c, 0x0a, 0x5b, 0xea, 0x6b, 0x4d, 0xb6, 0xac, 0xa4, 0xe8, 0x5a, 0x0f, 0x5e,
-	0xda, 0x74, 0x1d, 0x87, 0xa7, 0xeb, 0xf7, 0xf0, 0x3d, 0x80, 0xa3, 0x73, 0x55, 0xc9, 0x56, 0xe8,
-	0x1e, 0xf5, 0xff, 0x0e, 0xc0, 0xc3, 0x5b, 0x0a, 0xec, 0xc3, 0x29, 0x3c, 0x84, 0x47, 0x16, 0xeb,
-	0x55, 0x5e, 0x63, 0x81, 0xbf, 0x47, 0x73, 0x78, 0x0f, 0xe0, 0xd8, 0x5f, 0x25, 0xf6, 0xdf, 0x24,
-	0x0a, 0x9f, 0x07, 0x61, 0xff, 0xed, 0x56, 0x2a, 0xfa, 0x05, 0xe0, 0xd8, 0x0e, 0x6b, 0x01, 0xcd,
-	0xc6, 0x32, 0xfe, 0x7b, 0xe7, 0x64, 0xae, 0xfc, 0xbf, 0x81, 0x86, 0xb6, 0xe7, 0x5f, 0x7c, 0xfd,
-	0xfd, 0x3a, 0x7d, 0x19, 0x5d, 0xc2, 0x71, 0xeb, 0xb0, 0xa6, 0x9c, 0x2a, 0x92, 0x57, 0xbc, 0xb6,
-	0x57, 0x45, 0xed, 0x1c, 0xf4, 0x11, 0x40, 0xd8, 0xd9, 0x27, 0xa8, 0x90, 0x74, 0xf4, 0x9d, 0x0d,
-	0x95, 0x29, 0xee, 0x4a, 0x63, 0xe0, 0x2f, 0x2a, 0xf8, 0xb3, 0xa8, 0x80, 0x93, 0xed, 0xf2, 0x8a,
-	0xdb, 0xac, 0x30, 0x0f, 0x3f, 0x63, 0xde, 0x73, 0xf4, 0x16, 0xc0, 0x41, 0x73, 0x07, 0x21, 0x9c,
-	0xb0, 0x78, 0x7b, 0xee, 0x53, 0xc9, 0x05, 0x06, 0x75, 0x4a, 0xa1, 0x4e, 0xa2, 0x5c, 0x42, 0x54,
-	0x81, 0x3e, 0x01, 0x78, 0xb0, 0xe7, 0x91, 0x47, 0xd3, 0xb1, 0x55, 0xb7, 0xdb, 0x41, 0x99, 0x73,
-	0xbb, 0x95, 0x19, 0xe4, 0x19, 0x85, 0x9c, 0x47, 0x38, 0x16, 0x99, 0x28, 0x7d, 0x25, 0x22, 0xff,
-	0x02, 0xe0, 0xc8, 0x96, 0x87, 0x14, 0xcd, 0xc4, 0x42, 0x6c, 0xbf, 0x39, 0x32, 0xe7, 0x77, 0x2f,
-	0x34, 0xfc, 0x17, 0x14, 0x7f, 0x11, 0xe5, 0x63, 0xf9, 0x43, 0xe3, 0x10, 0x75, 0x50, 0xba, 0xb9,
-	0xb6, 0x61, 0x81, 0xf5, 0x0d, 0x0b, 0xfc, 0xdc, 0xb0, 0xc0, 0xab, 0x4d, 0x2b, 0xb5, 0xbe, 0x69,
-	0xa5, 0xbe, 0x6d, 0x5a, 0xa9, 0xfb, 0xd3, 0x5d, 0xef, 0xe3, 0x1d, 0x6c, 0x57, 0x8a, 0x78, 0xb5,
-	0xe3, 0xad, 0x5e, 0xd1, 0xee, 0x80, 0xfa, 0x17, 0x51, 0xfc, 0x13, 0x00, 0x00, 0xff, 0xff, 0xba,
-	0x18, 0x51, 0x5c, 0x63, 0x09, 0x00, 0x00,
+	// 986 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x57, 0xcf, 0x6f, 0xdc, 0x44,
+	0x14, 0xce, 0x84, 0x34, 0x34, 0xaf, 0x24, 0x11, 0x43, 0x4a, 0xc1, 0x6d, 0x37, 0x95, 0x91, 0x68,
+	0x28, 0xd4, 0x93, 0x6c, 0x9a, 0x16, 0x0a, 0xa1, 0x34, 0x0d, 0x81, 0x48, 0x40, 0xc3, 0x42, 0x05,
+	0x42, 0x02, 0xe3, 0x5d, 0x0f, 0x8b, 0x45, 0xec, 0x71, 0xfd, 0x23, 0xea, 0x12, 0xe5, 0x82, 0xf8,
+	0x03, 0x90, 0xb8, 0x21, 0xc1, 0x05, 0x71, 0xe1, 0x04, 0xe2, 0x00, 0x37, 0xae, 0x3d, 0x56, 0xe2,
+	0xc2, 0x01, 0xf1, 0x23, 0x41, 0xfc, 0x1d, 0xc8, 0x33, 0xcf, 0x5e, 0x3b, 0x6c, 0xb0, 0x9d, 0x36,
+	0x52, 0x4e, 0x5d, 0xcf, 0xbc, 0xef, 0xbd, 0xef, 0xfb, 0xdc, 0x7d, 0x5f, 0x16, 0x9e, 0xb4, 0x7b,
+	0x2e, 0xf7, 0x42, 0x47, 0x78, 0xb7, 0x7a, 0x1f, 0xb3, 0xec, 0x81, 0x85, 0x51, 0xc0, 0x2d, 0x97,
+	0x07, 0xec, 0x66, 0xcc, 0x83, 0x9e, 0xe1, 0x07, 0x22, 0x12, 0x74, 0x3a, 0x5f, 0x6c, 0x64, 0x0f,
+	0x46, 0x5a, 0xac, 0x4d, 0x75, 0x45, 0x57, 0xc8, 0x5a, 0x96, 0x7c, 0x52, 0x30, 0xed, 0x54, 0x57,
+	0x88, 0xee, 0x3a, 0x67, 0x96, 0xef, 0x30, 0xcb, 0xf3, 0x44, 0x64, 0x45, 0x8e, 0xf0, 0x42, 0xbc,
+	0x6d, 0xe0, 0xad, 0x7c, 0x6a, 0xc7, 0x1f, 0x30, 0x3b, 0x0e, 0x64, 0x41, 0x7a, 0xdf, 0x11, 0xa1,
+	0x2b, 0x42, 0xd6, 0xb6, 0x42, 0xce, 0x36, 0xe6, 0xda, 0x3c, 0xb2, 0xe6, 0x58, 0x47, 0x38, 0xe9,
+	0xfd, 0xb9, 0xfc, 0xbd, 0x64, 0x9b, 0x55, 0xf9, 0x56, 0xd7, 0xf1, 0xf2, 0xbd, 0x9e, 0x2a, 0x53,
+	0xab, 0x3e, 0x60, 0xb5, 0x51, 0xad, 0x9a, 0x07, 0x55, 0xbb, 0xfb, 0x56, 0x60, 0xb9, 0xa8, 0x5b,
+	0x9f, 0x84, 0xf1, 0x35, 0xf9, 0xdc, 0xe2, 0x37, 0x63, 0x1e, 0x46, 0xfa, 0x5b, 0x30, 0x91, 0x1e,
+	0x84, 0xbe, 0xf0, 0x42, 0x4e, 0x5f, 0x84, 0x51, 0x05, 0x79, 0x84, 0x9c, 0x21, 0x33, 0xc7, 0x9a,
+	0x67, 0x8d, 0x92, 0x17, 0x60, 0xa8, 0x06, 0x4b, 0x23, 0xb7, 0x7f, 0x9f, 0x1e, 0x6a, 0x21, 0x58,
+	0x3f, 0x03, 0x8d, 0x57, 0x85, 0x1d, 0xaf, 0xf3, 0x37, 0xc5, 0xb2, 0x13, 0x46, 0x81, 0xd3, 0x8e,
+	0x23, 0x7e, 0x4d, 0x38, 0x5e, 0x36, 0xfa, 0x53, 0x02, 0xd3, 0x7b, 0x96, 0x20, 0x19, 0x0b, 0x8e,
+	0x24, 0xae, 0x27, 0x5c, 0xee, 0x9b, 0x39, 0xd6, 0x7c, 0xd4, 0x50, 0xbe, 0x1b, 0x89, 0xef, 0x06,
+	0x3a, 0x6e, 0x24, 0x90, 0xa5, 0xd9, 0x64, 0xfa, 0xb7, 0x7f, 0x4c, 0xcf, 0x74, 0x9d, 0xe8, 0xc3,
+	0xb8, 0x6d, 0x74, 0x84, 0xcb, 0xf0, 0x25, 0xa9, 0x7f, 0xce, 0x87, 0xf6, 0x47, 0x2c, 0xea, 0xf9,
+	0x3c, 0x34, 0xd4, 0x0c, 0xd5, 0x59, 0x7f, 0x0c, 0x1e, 0x7c, 0x43, 0x2a, 0x59, 0xea, 0xad, 0x2e,
+	0x23, 0x37, 0x3a, 0x01, 0xc3, 0x8e, 0x2d, 0x0d, 0x18, 0x69, 0x0d, 0x3b, 0xb6, 0x7e, 0x03, 0x68,
+	0xbe, 0x08, 0xd9, 0x5d, 0x81, 0x51, 0x65, 0x42, 0x65, 0xab, 0x54, 0x93, 0x16, 0xc2, 0xf4, 0xb7,
+	0x61, 0x42, 0x9d, 0xa4, 0xa6, 0xd0, 0x15, 0x80, 0xfe, 0x7f, 0x20, 0x6c, 0xfb, 0x78, 0x41, 0xb5,
+	0xfa, 0x6e, 0xa4, 0xda, 0xd7, 0xac, 0x2e, 0x47, 0x6c, 0x2b, 0x87, 0xd4, 0xbf, 0x24, 0x30, 0x99,
+	0xb5, 0x46, 0xba, 0x57, 0x61, 0xc4, 0xb6, 0x22, 0x0b, 0xbd, 0xac, 0x4a, 0x16, 0xdf, 0xab, 0x84,
+	0xd2, 0x97, 0x0a, 0xf4, 0x86, 0x51, 0x75, 0x19, 0x3d, 0x35, 0xbf, 0xc0, 0xef, 0x3d, 0x98, 0xba,
+	0xda, 0x89, 0x9c, 0x0d, 0x7e, 0x40, 0xfa, 0xbf, 0x26, 0x70, 0x7c, 0xd7, 0x80, 0x43, 0xe8, 0xc2,
+	0xfb, 0xf0, 0xf0, 0x0d, 0xbf, 0x23, 0x5c, 0xc7, 0xeb, 0x1e, 0x90, 0x0f, 0xdf, 0x10, 0x38, 0xf1,
+	0x9f, 0x11, 0x87, 0xd0, 0x89, 0x77, 0xe1, 0xa1, 0xb5, 0xd8, 0xf5, 0xd7, 0x02, 0x1e, 0x86, 0x71,
+	0xc0, 0xef, 0xb5, 0x0d, 0xdf, 0x11, 0x98, 0x2a, 0xf6, 0x47, 0x0f, 0xae, 0xc3, 0x51, 0x1f, 0xcf,
+	0xd0, 0x87, 0xf3, 0xe5, 0xfb, 0x2e, 0xd7, 0x08, 0xdd, 0xc8, 0x9a, 0xdc, 0x3b, 0x47, 0x16, 0xe1,
+	0x54, 0x61, 0x50, 0xaf, 0x25, 0xd6, 0xd7, 0x2d, 0xdf, 0x4f, 0xad, 0x39, 0x0d, 0x10, 0xa8, 0x13,
+	0x13, 0x57, 0xd5, 0x58, 0x6b, 0x0c, 0x4f, 0x56, 0x6d, 0xdd, 0x87, 0xd3, 0x7b, 0xc0, 0x07, 0x2a,
+	0x27, 0x77, 0xad, 0x5c, 0xbf, 0x0c, 0x27, 0x8b, 0x13, 0x71, 0xd9, 0x21, 0xdf, 0x93, 0x30, 0xa6,
+	0xfa, 0x98, 0xd9, 0x66, 0x3d, 0xaa, 0x0e, 0x56, 0x6d, 0xfd, 0x27, 0xb2, 0x5b, 0x6d, 0x0a, 0x3e,
+	0xec, 0xef, 0xa9, 0xf9, 0xdb, 0x38, 0x1c, 0x79, 0x3d, 0x29, 0xa5, 0x5f, 0x10, 0x18, 0x55, 0x59,
+	0x48, 0x8d, 0x8a, 0xa1, 0x89, 0xe6, 0x68, 0xac, 0x72, 0xbd, 0x62, 0xa0, 0xb3, 0x4f, 0x7e, 0xf9,
+	0xfb, 0xf3, 0xe1, 0x27, 0xe8, 0x59, 0x56, 0x2d, 0xff, 0xe9, 0x5f, 0x04, 0x4e, 0xec, 0x91, 0xb6,
+	0xf4, 0x4a, 0xe9, 0xf4, 0xff, 0x8f, 0x72, 0xed, 0x85, 0xfd, 0x37, 0x40, 0x3d, 0xd7, 0xa4, 0x9e,
+	0x45, 0xfa, 0x6c, 0xa9, 0x1e, 0x57, 0x76, 0x32, 0x23, 0x61, 0xda, 0x59, 0x2f, 0x53, 0x46, 0x39,
+	0xfd, 0x9e, 0x00, 0xf4, 0x63, 0x9a, 0x36, 0xab, 0x6e, 0xb4, 0x7e, 0xf0, 0x6b, 0xf3, 0xb5, 0x30,
+	0x48, 0xfe, 0xb2, 0x24, 0x7f, 0x81, 0x36, 0x59, 0xb5, 0x3f, 0xde, 0xcc, 0x76, 0xcf, 0x74, 0x6c,
+	0xb6, 0xe9, 0xd8, 0x5b, 0xf4, 0x2b, 0x02, 0xf7, 0xe3, 0x62, 0xa6, 0xac, 0xe2, 0xf0, 0xcc, 0xf7,
+	0xd9, 0xea, 0x00, 0xa4, 0x3a, 0x2b, 0xa9, 0x9e, 0xa3, 0x33, 0x15, 0xa9, 0x86, 0xf4, 0x47, 0x02,
+	0xe3, 0x85, 0x24, 0xa5, 0x0b, 0xa5, 0x53, 0x07, 0x45, 0xbb, 0x76, 0xb1, 0x2e, 0x0c, 0x29, 0x5f,
+	0x92, 0x94, 0xe7, 0x28, 0x2b, 0xa5, 0x6c, 0x49, 0xbc, 0x99, 0x32, 0xff, 0x99, 0xc0, 0xe4, 0xae,
+	0xec, 0xa3, 0x97, 0x4a, 0x49, 0x0c, 0x0e, 0x64, 0xed, 0xe9, 0xfa, 0x40, 0xe4, 0xff, 0x8c, 0xe4,
+	0x3f, 0x4f, 0xe7, 0x4a, 0xf9, 0xc7, 0xd8, 0x21, 0x53, 0xf0, 0x03, 0x81, 0x07, 0xf2, 0x5b, 0x8c,
+	0x5e, 0xa8, 0xb5, 0xf4, 0x52, 0xee, 0x0b, 0x35, 0x51, 0x48, 0xfc, 0xa2, 0x24, 0x3e, 0x4b, 0x8d,
+	0xf2, 0x1d, 0x13, 0xbb, 0xbe, 0x99, 0xad, 0xd6, 0x7f, 0x08, 0x1c, 0x1f, 0x98, 0x3d, 0x74, 0xb1,
+	0xde, 0xce, 0xde, 0x15, 0x79, 0xda, 0xf3, 0xfb, 0x85, 0xa3, 0xa0, 0xd7, 0xa4, 0xa0, 0x97, 0xe9,
+	0x4a, 0x3d, 0x41, 0xc9, 0xd7, 0x15, 0x83, 0x95, 0x6d, 0xf6, 0x33, 0x77, 0x2b, 0xd9, 0xa9, 0x53,
+	0x83, 0x52, 0x8b, 0x3e, 0x57, 0x93, 0x68, 0x21, 0x29, 0xb5, 0xc5, 0x7d, 0xa2, 0x51, 0xe5, 0x2b,
+	0x52, 0xe5, 0x0a, 0x5d, 0xae, 0xaf, 0x52, 0xdd, 0xb0, 0xcd, 0x2c, 0xa8, 0xb7, 0x96, 0xae, 0xdf,
+	0xde, 0x6e, 0x90, 0x3b, 0xdb, 0x0d, 0xf2, 0xe7, 0x76, 0x83, 0x7c, 0xb6, 0xd3, 0x18, 0xba, 0xb3,
+	0xd3, 0x18, 0xfa, 0x75, 0xa7, 0x31, 0xf4, 0xce, 0x42, 0xee, 0x97, 0xd6, 0x1e, 0x93, 0x36, 0xe6,
+	0xd9, 0xad, 0xfe, 0x38, 0xf9, 0xe3, 0xab, 0x3d, 0x2a, 0x7f, 0x89, 0xce, 0xff, 0x1b, 0x00, 0x00,
+	0xff, 0xff, 0x0c, 0xfe, 0x38, 0x1a, 0x05, 0x10, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -578,6 +964,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// Params returns the total set of streamer parameters.
+	Params(ctx context.Context, in *ParamsRequest, opts ...grpc.CallOption) (*ParamsResponse, error)
 	// ModuleToDistributeCoins returns coins that are going to be distributed
 	ModuleToDistributeCoins(ctx context.Context, in *ModuleToDistributeCoinsRequest, opts ...grpc.CallOption) (*ModuleToDistributeCoinsResponse, error)
 	// StreamByID returns streams by their respective ID
@@ -588,6 +976,16 @@ type QueryClient interface {
 	ActiveStreams(ctx context.Context, in *ActiveStreamsRequest, opts ...grpc.CallOption) (*ActiveStreamsResponse, error)
 	// Returns scheduled streams that have not yet occurred
 	UpcomingStreams(ctx context.Context, in *UpcomingStreamsRequest, opts ...grpc.CallOption) (*UpcomingStreamsResponse, error)
+	// PumpPressure is how much DYM will be used for buying RA tokens if pump
+	// occurs. Returns pump pressure for all rollapps from all streams.
+	PumpPressure(ctx context.Context, in *PumpPressureRequest, opts ...grpc.CallOption) (*PumpPressureResponse, error)
+	// PumpPressureByRollapp is how much DYM will be used for buying RA tokens if
+	// pump occurs. Returns pump pressure for a specific rollapp from all streams.
+	PumpPressureByRollapp(ctx context.Context, in *PumpPressureByRollappRequest, opts ...grpc.CallOption) (*PumpPressureByRollappResponse, error)
+	// PumpPressureByStream is how much DYM will be used for buying RA tokens if
+	// pump occurs in the given stream. Returns pump pressure for a specific
+	// rollapp from the given streams.
+	PumpPressureByStream(ctx context.Context, in *PumpPressureByStreamRequest, opts ...grpc.CallOption) (*PumpPressureByStreamResponse, error)
 }
 
 type queryClient struct {
@@ -596,6 +994,15 @@ type queryClient struct {
 
 func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
+}
+
+func (c *queryClient) Params(ctx context.Context, in *ParamsRequest, opts ...grpc.CallOption) (*ParamsResponse, error) {
+	out := new(ParamsResponse)
+	err := c.cc.Invoke(ctx, "/dymensionxyz.dymension.streamer.Query/Params", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *queryClient) ModuleToDistributeCoins(ctx context.Context, in *ModuleToDistributeCoinsRequest, opts ...grpc.CallOption) (*ModuleToDistributeCoinsResponse, error) {
@@ -643,8 +1050,37 @@ func (c *queryClient) UpcomingStreams(ctx context.Context, in *UpcomingStreamsRe
 	return out, nil
 }
 
+func (c *queryClient) PumpPressure(ctx context.Context, in *PumpPressureRequest, opts ...grpc.CallOption) (*PumpPressureResponse, error) {
+	out := new(PumpPressureResponse)
+	err := c.cc.Invoke(ctx, "/dymensionxyz.dymension.streamer.Query/PumpPressure", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) PumpPressureByRollapp(ctx context.Context, in *PumpPressureByRollappRequest, opts ...grpc.CallOption) (*PumpPressureByRollappResponse, error) {
+	out := new(PumpPressureByRollappResponse)
+	err := c.cc.Invoke(ctx, "/dymensionxyz.dymension.streamer.Query/PumpPressureByRollapp", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) PumpPressureByStream(ctx context.Context, in *PumpPressureByStreamRequest, opts ...grpc.CallOption) (*PumpPressureByStreamResponse, error) {
+	out := new(PumpPressureByStreamResponse)
+	err := c.cc.Invoke(ctx, "/dymensionxyz.dymension.streamer.Query/PumpPressureByStream", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
+	// Params returns the total set of streamer parameters.
+	Params(context.Context, *ParamsRequest) (*ParamsResponse, error)
 	// ModuleToDistributeCoins returns coins that are going to be distributed
 	ModuleToDistributeCoins(context.Context, *ModuleToDistributeCoinsRequest) (*ModuleToDistributeCoinsResponse, error)
 	// StreamByID returns streams by their respective ID
@@ -655,12 +1091,25 @@ type QueryServer interface {
 	ActiveStreams(context.Context, *ActiveStreamsRequest) (*ActiveStreamsResponse, error)
 	// Returns scheduled streams that have not yet occurred
 	UpcomingStreams(context.Context, *UpcomingStreamsRequest) (*UpcomingStreamsResponse, error)
+	// PumpPressure is how much DYM will be used for buying RA tokens if pump
+	// occurs. Returns pump pressure for all rollapps from all streams.
+	PumpPressure(context.Context, *PumpPressureRequest) (*PumpPressureResponse, error)
+	// PumpPressureByRollapp is how much DYM will be used for buying RA tokens if
+	// pump occurs. Returns pump pressure for a specific rollapp from all streams.
+	PumpPressureByRollapp(context.Context, *PumpPressureByRollappRequest) (*PumpPressureByRollappResponse, error)
+	// PumpPressureByStream is how much DYM will be used for buying RA tokens if
+	// pump occurs in the given stream. Returns pump pressure for a specific
+	// rollapp from the given streams.
+	PumpPressureByStream(context.Context, *PumpPressureByStreamRequest) (*PumpPressureByStreamResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
+func (*UnimplementedQueryServer) Params(ctx context.Context, req *ParamsRequest) (*ParamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
+}
 func (*UnimplementedQueryServer) ModuleToDistributeCoins(ctx context.Context, req *ModuleToDistributeCoinsRequest) (*ModuleToDistributeCoinsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ModuleToDistributeCoins not implemented")
 }
@@ -676,9 +1125,36 @@ func (*UnimplementedQueryServer) ActiveStreams(ctx context.Context, req *ActiveS
 func (*UnimplementedQueryServer) UpcomingStreams(ctx context.Context, req *UpcomingStreamsRequest) (*UpcomingStreamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpcomingStreams not implemented")
 }
+func (*UnimplementedQueryServer) PumpPressure(ctx context.Context, req *PumpPressureRequest) (*PumpPressureResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PumpPressure not implemented")
+}
+func (*UnimplementedQueryServer) PumpPressureByRollapp(ctx context.Context, req *PumpPressureByRollappRequest) (*PumpPressureByRollappResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PumpPressureByRollapp not implemented")
+}
+func (*UnimplementedQueryServer) PumpPressureByStream(ctx context.Context, req *PumpPressureByStreamRequest) (*PumpPressureByStreamResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PumpPressureByStream not implemented")
+}
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
+}
+
+func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ParamsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Params(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dymensionxyz.dymension.streamer.Query/Params",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Params(ctx, req.(*ParamsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_ModuleToDistributeCoins_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -771,10 +1247,68 @@ func _Query_UpcomingStreams_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_PumpPressure_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PumpPressureRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).PumpPressure(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dymensionxyz.dymension.streamer.Query/PumpPressure",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).PumpPressure(ctx, req.(*PumpPressureRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_PumpPressureByRollapp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PumpPressureByRollappRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).PumpPressureByRollapp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dymensionxyz.dymension.streamer.Query/PumpPressureByRollapp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).PumpPressureByRollapp(ctx, req.(*PumpPressureByRollappRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_PumpPressureByStream_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PumpPressureByStreamRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).PumpPressureByStream(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/dymensionxyz.dymension.streamer.Query/PumpPressureByStream",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).PumpPressureByStream(ctx, req.(*PumpPressureByStreamRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "dymensionxyz.dymension.streamer.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Params",
+			Handler:    _Query_Params_Handler,
+		},
 		{
 			MethodName: "ModuleToDistributeCoins",
 			Handler:    _Query_ModuleToDistributeCoins_Handler,
@@ -795,9 +1329,77 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			MethodName: "UpcomingStreams",
 			Handler:    _Query_UpcomingStreams_Handler,
 		},
+		{
+			MethodName: "PumpPressure",
+			Handler:    _Query_PumpPressure_Handler,
+		},
+		{
+			MethodName: "PumpPressureByRollapp",
+			Handler:    _Query_PumpPressureByRollapp_Handler,
+		},
+		{
+			MethodName: "PumpPressureByStream",
+			Handler:    _Query_PumpPressureByStream_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "dymensionxyz/dymension/streamer/query.proto",
+}
+
+func (m *ParamsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ParamsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ParamsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *ParamsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ParamsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *ModuleToDistributeCoinsRequest) Marshal() (dAtA []byte, err error) {
@@ -1175,6 +1777,230 @@ func (m *UpcomingStreamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
+func (m *PumpPressureRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PumpPressureRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PumpPressureRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *PumpPressureResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PumpPressureResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PumpPressureResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Pressure) > 0 {
+		for iNdEx := len(m.Pressure) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Pressure[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *PumpPressureByRollappRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PumpPressureByRollappRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PumpPressureByRollappRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.RollappId) > 0 {
+		i -= len(m.RollappId)
+		copy(dAtA[i:], m.RollappId)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.RollappId)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *PumpPressureByRollappResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PumpPressureByRollappResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PumpPressureByRollappResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Pressure.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *PumpPressureByStreamRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PumpPressureByStreamRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PumpPressureByStreamRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.StreamId != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.StreamId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *PumpPressureByStreamResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PumpPressureByStreamResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PumpPressureByStreamResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Pressure) > 0 {
+		for iNdEx := len(m.Pressure) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Pressure[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -1186,6 +2012,26 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *ParamsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *ParamsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Params.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
 func (m *ModuleToDistributeCoinsRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1331,11 +2177,231 @@ func (m *UpcomingStreamsResponse) Size() (n int) {
 	return n
 }
 
+func (m *PumpPressureRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *PumpPressureResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Pressure) > 0 {
+		for _, e := range m.Pressure {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *PumpPressureByRollappRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.RollappId)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *PumpPressureByRollappResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Pressure.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *PumpPressureByStreamRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.StreamId != 0 {
+		n += 1 + sovQuery(uint64(m.StreamId))
+	}
+	return n
+}
+
+func (m *PumpPressureByStreamResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Pressure) > 0 {
+		for _, e := range m.Pressure {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
 func sovQuery(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *ParamsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ParamsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ParamsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ParamsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ParamsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *ModuleToDistributeCoinsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -2184,6 +3250,566 @@ func (m *UpcomingStreamsResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.Data = append(m.Data, Stream{})
 			if err := m.Data[len(m.Data)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PumpPressureRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PumpPressureRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PumpPressureRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PumpPressureResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PumpPressureResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PumpPressureResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pressure", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Pressure = append(m.Pressure, PumpPressure{})
+			if err := m.Pressure[len(m.Pressure)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PumpPressureByRollappRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PumpPressureByRollappRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PumpPressureByRollappRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RollappId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RollappId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PumpPressureByRollappResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PumpPressureByRollappResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PumpPressureByRollappResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pressure", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Pressure.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PumpPressureByStreamRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PumpPressureByStreamRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PumpPressureByStreamRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StreamId", wireType)
+			}
+			m.StreamId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.StreamId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PumpPressureByStreamResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PumpPressureByStreamResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PumpPressureByStreamResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pressure", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Pressure = append(m.Pressure, PumpPressure{})
+			if err := m.Pressure[len(m.Pressure)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

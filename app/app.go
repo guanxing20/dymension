@@ -71,7 +71,11 @@ import (
 	"github.com/evmos/ethermint/server/flags"
 	ethermint "github.com/evmos/ethermint/types"
 	evmclient "github.com/evmos/ethermint/x/evm/client"
-	/* ----------------------------- osmosis imports ---------------------------- */ /* ---------------------------- upgrade handlers ---------------------------- */)
+
+	// Force-load the tracer engines to trigger registration due to Go-Ethereum v1.10.15 changes
+	_ "github.com/ethereum/go-ethereum/eth/tracers/js"
+	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
+)
 
 var (
 	_ servertypes.Application = (*App)(nil)
@@ -206,8 +210,8 @@ func New(
 	app.mm.SetOrderInitGenesis(InitGenesis...)
 	app.mm.SetOrderExportGenesis(InitGenesis...)
 
-	// Uncomment if you want to set a custom migration order here.
-	// app.mm.SetOrderMigrations(custom order)
+	// Set a custom migration order here.
+	app.mm.SetOrderMigrations(CustomMigrationOrder(app.mm.ModuleNames())...)
 
 	app.mm.RegisterInvariants(app.CrisisKeeper)
 
@@ -459,6 +463,7 @@ func (app *App) setupUpgradeHandler(upgrade upgrades.Upgrade) {
 				EIBCKeeper:         &app.EIBCKeeper,
 				DymNSKeeper:        &app.DymNSKeeper,
 				StreamerKeeper:     &app.StreamerKeeper,
+				OTCBuybackKeeper:   app.OTCBuybackKeeper,
 				SequencerKeeper:    app.SequencerKeeper,
 				MintKeeper:         &app.MintKeeper,
 				SlashingKeeper:     &app.SlashingKeeper,

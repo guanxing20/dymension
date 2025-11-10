@@ -13,12 +13,13 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	cometbftproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	streamertypes "github.com/dymensionxyz/dymension/v3/x/streamer/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/dymensionxyz/dymension/v3/app"
 	"github.com/dymensionxyz/dymension/v3/app/apptesting"
 	v5 "github.com/dymensionxyz/dymension/v3/app/upgrades/v5"
 	dymnsmigration "github.com/dymensionxyz/dymension/v3/app/upgrades/v5/types/dymns"
@@ -35,9 +36,7 @@ import (
 
 // UpgradeTestSuite defines the structure for the upgrade test suite
 type UpgradeTestSuite struct {
-	suite.Suite
-	Ctx sdk.Context
-	App *app.App
+	apptesting.KeeperTestHelper
 }
 
 // SetupTestCustom initializes the necessary items for each test
@@ -83,11 +82,13 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 			preUpgrade: func() error {
 				s.setLockupParams()
 				s.setIROParams()
+				s.populateAMMPool()
 				s.setGAMMParams()
 				s.setDymNSParams()
 				s.populateSequencers(s.Ctx, s.App.SequencerKeeper)
 				s.populateLivenessEvents(s.Ctx, s.App.RollappKeeper)
 				s.populateIBCChannels()
+				s.disableStreamerBurner() // should be enabled after upgrade
 				return nil
 			},
 			upgrade: func() {
@@ -141,6 +142,8 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 
 				// validate consensus params
 				s.validateConsensusParamsMigration()
+
+				s.validateStreamerCanBurn()
 
 				return
 			},
@@ -298,4 +301,30 @@ func (s *UpgradeTestSuite) validateConsensusParamsMigration() {
 	consensusParams, err := s.App.ConsensusParamsKeeper.Params(s.Ctx, nil)
 	s.Require().NoError(err)
 	s.Require().Equal(expectedEvidenceMaxAgeNumBlocks, consensusParams.Params.Evidence.MaxAgeNumBlocks)
+}
+
+func (s *UpgradeTestSuite) disableStreamerBurner() {
+	macc := s.App.AccountKeeper.GetModuleAccount(s.Ctx, streamertypes.ModuleName)
+	m, ok := macc.(*authtypes.ModuleAccount)
+	s.Require().True(ok)
+	m.Permissions = slices.DeleteFunc(m.Permissions, func(perm string) bool { return perm == authtypes.Burner })
+	s.App.AccountKeeper.SetModuleAccount(s.Ctx, m)
+}
+
+func (s *UpgradeTestSuite) validateStreamerCanBurn() {
+	macc := s.App.AccountKeeper.GetModuleAccount(s.Ctx, streamertypes.ModuleName)
+	s.Require().NotNil(macc)
+	ok := macc.HasPermission(authtypes.Burner)
+	s.Require().True(ok)
+}
+
+func (s *UpgradeTestSuite) populateAMMPool() {
+	for {
+		poolID := s.PreparePoolWithCoins(sdk.NewCoins(
+			sdk.NewCoin(v5.NobleUSDCDenom, math.NewInt(100_000).MulRaw(1e6)),
+			sdk.NewCoin("adym", math.NewInt(1_000_000).MulRaw(1e18))))
+		if poolID == 2 {
+			break
+		}
+	}
 }

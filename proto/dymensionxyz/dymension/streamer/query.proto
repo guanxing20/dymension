@@ -7,11 +7,18 @@ import "google/protobuf/duration.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "dymensionxyz/dymension/streamer/stream.proto";
+import "dymensionxyz/dymension/streamer/streamer.proto";
+import "dymensionxyz/dymension/streamer/params.proto";
 
 option go_package = "github.com/dymensionxyz/dymension/v3/x/streamer/types";
 
 // Query defines the gRPC querier service
 service Query {
+  // Params returns the total set of streamer parameters.
+  rpc Params(ParamsRequest) returns (ParamsResponse) {
+    option (google.api.http).get = "/dymensionxyz/dymension/streamer/params";
+  }
+
   // ModuleToDistributeCoins returns coins that are going to be distributed
   rpc ModuleToDistributeCoins(ModuleToDistributeCoinsRequest)
       returns (ModuleToDistributeCoinsResponse) {
@@ -39,7 +46,31 @@ service Query {
     option (google.api.http).get =
         "/dymensionxyz/dymension/streamer/upcoming_streams";
   }
+  // PumpPressure is how much DYM will be used for buying RA tokens if pump
+  // occurs. Returns pump pressure for all rollapps from all streams.
+  rpc PumpPressure(PumpPressureRequest) returns (PumpPressureResponse) {
+    option (google.api.http).get =
+        "/dymensionxyz/dymension/streamer/pump_pressure";
+  }
+  // PumpPressureByRollapp is how much DYM will be used for buying RA tokens if
+  // pump occurs. Returns pump pressure for a specific rollapp from all streams.
+  rpc PumpPressureByRollapp(PumpPressureByRollappRequest)
+      returns (PumpPressureByRollappResponse) {
+    option (google.api.http).get = "/dymensionxyz/dymension/streamer/"
+                                   "pump_pressure_by_rollapp/{rollapp_id}";
+  }
+  // PumpPressureByStream is how much DYM will be used for buying RA tokens if
+  // pump occurs in the given stream. Returns pump pressure for a specific
+  // rollapp from the given streams.
+  rpc PumpPressureByStream(PumpPressureByStreamRequest)
+      returns (PumpPressureByStreamResponse) {
+    option (google.api.http).get = "/dymensionxyz/dymension/streamer/"
+                                   "pump_pressure_by_stream/{stream_id}";
+  }
 }
+
+message ParamsRequest {}
+message ParamsResponse { Params params = 1 [ (gogoproto.nullable) = false ]; }
 
 message ModuleToDistributeCoinsRequest {}
 message ModuleToDistributeCoinsResponse {
@@ -89,5 +120,24 @@ message UpcomingStreamsResponse {
   // Streams whose distribution is upcoming
   repeated Stream data = 1 [ (gogoproto.nullable) = false ];
   // Pagination defines pagination for the response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message PumpPressureRequest {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+message PumpPressureResponse {
+  repeated PumpPressure pressure = 1 [ (gogoproto.nullable) = false ];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message PumpPressureByRollappRequest { string rollapp_id = 1; }
+message PumpPressureByRollappResponse {
+  PumpPressure pressure = 1 [ (gogoproto.nullable) = false ];
+}
+
+message PumpPressureByStreamRequest { uint64 stream_id = 1; }
+message PumpPressureByStreamResponse {
+  repeated PumpPressure pressure = 1 [ (gogoproto.nullable) = false ];
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

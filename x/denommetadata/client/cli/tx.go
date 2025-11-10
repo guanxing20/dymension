@@ -22,9 +22,6 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	cmd.AddCommand(NewCmdSubmitCreateDenomMetadataProposal())
-	cmd.AddCommand(NewCmdSubmitUpdateDenomMetadataProposal())
-	// this line is used by starport scaffolding # 1
-
+	cmd.AddCommand(NewCmdRegisterHLTokenDenomMetadata())
 	return cmd
 }

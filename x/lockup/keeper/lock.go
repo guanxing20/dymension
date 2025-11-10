@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"time"
 
@@ -65,7 +66,7 @@ func (k Keeper) AddToExistingLock(ctx sdk.Context, owner sdk.AccAddress, coin sd
 
 	_, err := k.AddTokensToLockByID(ctx, lock.ID, owner, coin)
 	if err != nil {
-		return 0, errorsmod.Wrapf(sdkerrors.ErrInvalidRequest, err.Error())
+		return 0, errorsmod.Wrap(sdkerrors.ErrInvalidRequest, err.Error())
 	}
 
 	// update the timestamp of the lock
@@ -491,7 +492,7 @@ func (k Keeper) InitializeAllLocks(ctx sdk.Context, locks []types.PeriodLock) er
 		for duration := range curDurationMap {
 			durations = append(durations, duration)
 		}
-		sort.Slice(durations, func(i, j int) bool { return durations[i] < durations[j] })
+		slices.Sort(durations)
 		// now that we have a sorted list of durations for this denom,
 		// add them all to accumulation store
 		msg := fmt.Sprintf("Setting accumulation entries for locks for %s, there are %d distinct durations",

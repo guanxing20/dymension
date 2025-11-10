@@ -3,6 +3,8 @@ package keeper
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"slices"
 
 	"cosmossdk.io/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,6 +25,13 @@ type Querier struct {
 // NewQuerier creates a new Querier struct.
 func NewQuerier(k Keeper) Querier {
 	return Querier{Keeper: k}
+}
+
+// Params returns the total set of streamer parameters.
+func (q Querier) Params(goCtx context.Context, _ *types.ParamsRequest) (*types.ParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	params := q.GetParams(ctx)
+	return &types.ParamsResponse{Params: params}, nil
 }
 
 // ModuleToDistributeCoins returns coins that are going to be distributed.
@@ -92,6 +101,85 @@ func (q Querier) UpcomingStreams(goCtx context.Context, req *types.UpcomingStrea
 	}
 
 	return &types.UpcomingStreamsResponse{Data: streams, Pagination: pageRes}, nil
+}
+
+// PumpPressure for every RA_i is calculated as RA_i / ∑^N RA_j
+func (q Querier) PumpPressure(goCtx context.Context, req *types.PumpPressureRequest) (*types.PumpPressureResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	pressure, err := q.TotalPumpPressure(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.PumpPressureResponse{
+		Pressure:   pressure,
+		Pagination: nil, // TODO: pagination?
+	}, nil
+}
+
+// PumpPressureByRollapp for RA_i is calculated as RA_i / ∑^N RA_j
+func (q Querier) PumpPressureByRollapp(goCtx context.Context, req *types.PumpPressureByRollappRequest) (*types.PumpPressureByRollappResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	pressure, err := q.TotalPumpPressure(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	idx := slices.IndexFunc(pressure, func(p types.PumpPressure) bool {
+		return p.RollappId == req.RollappId
+	})
+	if idx < 0 {
+		return nil, status.Error(codes.NotFound, "rollapp don't have any pressure")
+	}
+
+	return &types.PumpPressureByRollappResponse{
+		Pressure: pressure[idx],
+	}, nil
+}
+
+// PumpPressureByStream for every RA_i is calculated as RA_i / ∑^N RA_j
+func (q Querier) PumpPressureByStream(goCtx context.Context, req *types.PumpPressureByStreamRequest) (*types.PumpPressureByStreamResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	stream, err := q.GetStreamByID(ctx, req.StreamId)
+	if err != nil {
+		return nil, err
+	}
+	if !stream.IsPumpStream() {
+		return nil, fmt.Errorf("stream is not a pump stream")
+	}
+	if !stream.IsActiveStream(ctx.BlockTime()) {
+		return nil, fmt.Errorf("stream is not active")
+	}
+	ra, ok := stream.PumpParams.Target.(*types.PumpParams_Rollapps)
+	if !ok {
+		return nil, fmt.Errorf("stream is not a rollapp stream")
+	}
+	d, err := q.sk.GetDistribution(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get sponsorship distribution: %w", err)
+	}
+
+	top := q.TopRollapps(ctx, d.Gauges, stream.LeftCoins()[0].Amount, &ra.Rollapps.NumTopRollapps)
+
+	return &types.PumpPressureByStreamResponse{
+		Pressure:   top,
+		Pagination: nil, // TODO: pagination?
+	}, nil
 }
 
 // getStreamFromIDJsonBytes returns streams from the json bytes of streamIDs.

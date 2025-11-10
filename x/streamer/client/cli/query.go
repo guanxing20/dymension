@@ -12,12 +12,25 @@ func GetQueryCmd() *cobra.Command {
 	// group streamer queries under a subcommand
 	cmd := osmocli.QueryIndexCmd(types.ModuleName)
 	qcGetter := types.NewQueryClient
+	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdParams)
 	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdStreams)
 	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdToDistributeCoins)
 	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdStreamByID)
 	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdActiveStreams)
 	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdUpcomingStreams)
+	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdPumpPressure)
+	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdPumpPressureByRollapp)
+	osmocli.AddQueryCmd(cmd, qcGetter, GetCmdPumpPressureByStream)
 	return cmd
+}
+
+// GetCmdParams returns the streamer module parameters.
+func GetCmdParams() (*osmocli.QueryDescriptor, *types.ParamsRequest) {
+	return &osmocli.QueryDescriptor{
+		Use:   "params",
+		Short: "Query streamer module parameters",
+		Long:  "Query the current parameters of the streamer module",
+	}, &types.ParamsRequest{}
 }
 
 // GetCmdStreams returns all available streams.
@@ -73,4 +86,31 @@ func GetCmdUpcomingStreams() (*osmocli.QueryDescriptor, *types.UpcomingStreamsRe
 		The command returns a list of upcoming streams with their details, including the start time, end time, and the coins it contains.`,
 		},
 		&types.UpcomingStreamsRequest{}
+}
+
+// GetCmdPumpPressure returns pump pressure for all rollapps.
+func GetCmdPumpPressure() (*osmocli.QueryDescriptor, *types.PumpPressureRequest) {
+	return &osmocli.QueryDescriptor{
+		Use:   "pump-pressure",
+		Short: "Query pump pressure for all rollapps",
+		Long:  "Returns how much DYM will be used for buying RA tokens if pump occurs for all rollapps.",
+	}, &types.PumpPressureRequest{}
+}
+
+// GetCmdPumpPressureByRollapp returns pump pressure for a specific rollapp.
+func GetCmdPumpPressureByRollapp() (*osmocli.QueryDescriptor, *types.PumpPressureByRollappRequest) {
+	return &osmocli.QueryDescriptor{
+		Use:   "pump-pressure-by-rollapp [rollapp-id]",
+		Short: "Query pump pressure for a specific rollapp",
+		Long:  "Returns how much DYM will be used for buying RA tokens if pump occurs for a specific rollapp.",
+	}, &types.PumpPressureByRollappRequest{}
+}
+
+// GetCmdPumpPressureByStream returns pump pressure for a specific stream.
+func GetCmdPumpPressureByStream() (*osmocli.QueryDescriptor, *types.PumpPressureByStreamRequest) {
+	return &osmocli.QueryDescriptor{
+		Use:   "pump-pressure-by-stream [stream-id]",
+		Short: "Query pump pressure for a specific stream",
+		Long:  "Returns how much DYM will be used for buying RA tokens if pump occurs for a specific stream.",
+	}, &types.PumpPressureByStreamRequest{}
 }

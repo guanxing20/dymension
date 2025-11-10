@@ -5,6 +5,7 @@ import (
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/dymensionxyz/gerr-cosmos/gerrc"
 	"github.com/dymensionxyz/sdk-utils/utils/uevent"
@@ -44,53 +45,89 @@ func (k Keeper) EnableTrading(ctx sdk.Context, planId string, submitter sdk.AccA
 	plan.EnableTradingWithStartTime(ctx.BlockTime())
 	k.SetPlan(ctx, plan)
 
-	k.rk.SetPreLaunchTime(ctx, &rollapp, plan.PreLaunchTime)
+	// non standard launched plans need to set the pre launch time
+	// standard launched plans will allow launch once graduated
+	if !plan.StandardLaunch {
+		k.rk.SetPreLaunchTime(ctx, &rollapp, plan.StartTime.Add(plan.IroPlanDuration))
+	}
+
+	err := uevent.EmitTypedEvent(ctx, &types.EventTradingEnabled{
+		PlanId:    planId,
+		RollappId: plan.RollappId,
+	})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // Buy buys fixed amount of allocation with price according to the price curve
-func (k Keeper) Buy(ctx sdk.Context, planId string, buyer sdk.AccAddress, amountTokensToBuy, maxCostAmt math.Int) error {
+func (k Keeper) Buy(
+	ctx sdk.Context,
+	planId string,
+	buyer sdk.AccAddress,
+	amountTokensToBuy, maxCostAmt math.Int,
+) (tokensInAmt math.Int, err error) {
+	params := k.GetParams(ctx)
+
 	plan, err := k.GetTradeableIRO(ctx, planId, buyer)
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// validate the IRO have enough tokens to sell
 	if plan.SoldAmt.Add(amountTokensToBuy).GT(plan.MaxAmountToSell) {
-		return types.ErrInsufficientTokens
+		return math.ZeroInt(), types.ErrInsufficientTokens
 	}
 
 	// Calculate costAmt for buying amountTokensToBuy over the price curve
 	costAmt := plan.BondingCurve.Cost(plan.SoldAmt, plan.SoldAmt.Add(amountTokensToBuy))
-	costPlusTakerFeeAmt, takerFeeAmt, err := k.ApplyTakerFee(costAmt, k.GetParams(ctx).TakerFee, true)
+	costPlusTakerFeeAmt, takerFeeAmt, err := k.ApplyTakerFee(costAmt, params.TakerFee, true)
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
+	cost := sdk.NewCoin(plan.LiquidityDenom, costAmt)
+	takerFee := sdk.NewCoin(plan.LiquidityDenom, takerFeeAmt)
 
 	// Validate expected out amount
 	if costPlusTakerFeeAmt.GT(maxCostAmt) {
-		return errorsmod.Wrapf(types.ErrInvalidExpectedOutAmount, "maxCost: %s, cost: %s, fee: %s", maxCostAmt.String(), costAmt.String(), takerFeeAmt.String())
+		return math.ZeroInt(), errorsmod.Wrapf(types.ErrInvalidExpectedOutAmount, "maxCost: %s, cost: %s, fee: %s", maxCostAmt.String(), costAmt.String(), takerFeeAmt.String())
+	}
+
+	// validate minimal trade amount
+	tradeAmtBaseDenom, err := k.tk.CalcCoinInBaseDenom(ctx, sdk.NewCoin(plan.LiquidityDenom, costAmt))
+	if err != nil {
+		return math.ZeroInt(), errorsmod.Wrapf(err, "failed to convert trade amount to base denom")
+	}
+	if !tradeAmtBaseDenom.Amount.GTE(params.MinTradeAmount) {
+		return math.ZeroInt(), types.ErrInsufficientTradeAmount
+	}
+
+	// validate the remaining tokens have a positive cost
+	newSoldAmt := plan.SoldAmt.Add(amountTokensToBuy)
+	remainingTokens := plan.MaxAmountToSell.Sub(newSoldAmt)
+	if remainingTokens.IsPositive() && !plan.BondingCurve.Cost(newSoldAmt, plan.MaxAmountToSell).IsPositive() {
+		return math.ZeroInt(), errorsmod.Wrapf(types.ErrInvalidCost, "remaining tokens would not be buyable: remaining=%s", remainingTokens.String())
 	}
 
 	// Charge taker fee
-	takerFee := sdk.NewCoin(plan.LiquidityDenom, takerFeeAmt)
 	owner := k.rk.MustGetRollappOwner(ctx, plan.RollappId)
 	err = k.chargeTakerFee(ctx, takerFee, buyer, &owner)
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// Send liquidity token from buyer to the plan. The liquidity token sent directly to the plan's module account
-	cost := sdk.NewCoin(plan.LiquidityDenom, costAmt)
 	err = k.BK.SendCoins(ctx, buyer, plan.GetAddress(), sdk.NewCoins(cost))
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// send allocated tokens from the plan to the buyer
 	err = k.BK.SendCoinsFromModuleToAccount(ctx, types.ModuleName, buyer, sdk.NewCoins(sdk.NewCoin(plan.TotalAllocation.Denom, amountTokensToBuy)))
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// Update plan
@@ -108,60 +145,102 @@ func (k Keeper) Buy(ctx sdk.Context, planId string, buyer sdk.AccAddress, amount
 		ClosingPrice: plan.SpotPrice(),
 	})
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
-	return nil
+	// if all tokens are sold, we need to graduate the plan
+	if plan.SoldAmt.Equal(plan.MaxAmountToSell) {
+		// we make the graduation gas free, as it's not relevant to the specific user's action
+		noGasCtx := ctx.WithGasMeter(storetypes.NewInfiniteGasMeter())
+		poolID, _, err := k.GraduatePlan(noGasCtx, planId)
+		if err != nil {
+			return math.ZeroInt(), err
+		}
+
+		err = uevent.EmitTypedEvent(noGasCtx, &types.EventGraduation{
+			PlanId:    planId,
+			RollappId: plan.RollappId,
+			PoolId:    poolID,
+		})
+		if err != nil {
+			return math.ZeroInt(), err
+		}
+	}
+
+	return costPlusTakerFeeAmt, nil
 }
 
 // BuyExactSpend uses exact amount of liquidity to buy tokens on the curve
-func (k Keeper) BuyExactSpend(ctx sdk.Context, planId string, buyer sdk.AccAddress, amountToSpend, minTokensAmt math.Int) error {
+func (k Keeper) BuyExactSpend(
+	ctx sdk.Context,
+	planId string,
+	buyer sdk.AccAddress,
+	amountToSpend, minTokensAmt math.Int,
+) (tokensOutAmt math.Int, err error) {
+	params := k.GetParams(ctx)
+
 	plan, err := k.GetTradeableIRO(ctx, planId, buyer)
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// deduct taker fee from the amount to spend
-	toSpendMinusTakerFeeAmt, takerFeeAmt, err := k.ApplyTakerFee(amountToSpend, k.GetParams(ctx).TakerFee, false)
+	toSpendMinusTakerFeeAmt, takerFeeAmt, err := k.ApplyTakerFee(amountToSpend, params.TakerFee, false)
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
+	}
+	takerFee := sdk.NewCoin(plan.LiquidityDenom, takerFeeAmt)
+	cost := sdk.NewCoin(plan.LiquidityDenom, toSpendMinusTakerFeeAmt)
+
+	// validate minimal trade amount
+	tradeAmtBaseDenom, err := k.tk.CalcCoinInBaseDenom(ctx, sdk.NewCoin(plan.LiquidityDenom, toSpendMinusTakerFeeAmt))
+	if err != nil {
+		return math.ZeroInt(), errorsmod.Wrapf(err, "failed to convert trade amount to base denom")
+	}
+	if !tradeAmtBaseDenom.Amount.GTE(params.MinTradeAmount) {
+		return math.ZeroInt(), types.ErrInsufficientTradeAmount
 	}
 
 	// calculate the amount of tokens possible to buy with the amount to spend
-	tokensOutAmt, err := plan.BondingCurve.TokensForExactInAmount(plan.SoldAmt, toSpendMinusTakerFeeAmt)
+	tokensOutAmt, err = plan.BondingCurve.TokensForExactInAmount(plan.SoldAmt, toSpendMinusTakerFeeAmt)
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// Validate expected out amount
 	if tokensOutAmt.LT(minTokensAmt) {
-		return errorsmod.Wrapf(types.ErrInvalidMinCost, "minTokens: %s, tokens: %s, fee: %s", minTokensAmt.String(), tokensOutAmt.String(), takerFeeAmt.String())
+		return math.ZeroInt(), errorsmod.Wrapf(types.ErrInvalidMinCost, "minTokens: %s, tokens: %s, fee: %s", minTokensAmt.String(), tokensOutAmt.String(), takerFeeAmt.String())
 	}
 
 	// validate the IRO have enough tokens to sell
 	if plan.SoldAmt.Add(tokensOutAmt).GT(plan.MaxAmountToSell) {
-		return types.ErrInsufficientTokens
+		return math.ZeroInt(), types.ErrInsufficientTokens
+	}
+
+	// validate the remaining tokens have a positive cost
+	newSoldAmt := plan.SoldAmt.Add(tokensOutAmt)
+	remainingTokens := plan.MaxAmountToSell.Sub(newSoldAmt)
+	if remainingTokens.IsPositive() && !plan.BondingCurve.Cost(newSoldAmt, plan.MaxAmountToSell).IsPositive() {
+		return math.ZeroInt(), errorsmod.Wrapf(types.ErrInvalidCost, "remaining tokens would not be buyable: remaining=%s", remainingTokens.String())
 	}
 
 	// Charge taker fee
-	takerFee := sdk.NewCoin(plan.LiquidityDenom, takerFeeAmt)
 	owner := k.rk.MustGetRollappOwner(ctx, plan.RollappId)
 	err = k.chargeTakerFee(ctx, takerFee, buyer, &owner)
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// Send liquidity token from buyer to the plan. The liquidity token sent directly to the plan's module account
-	cost := sdk.NewCoin(plan.LiquidityDenom, toSpendMinusTakerFeeAmt)
 	err = k.BK.SendCoins(ctx, buyer, plan.GetAddress(), sdk.NewCoins(cost))
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// send allocated tokens from the plan to the buyer
 	err = k.BK.SendCoinsFromModuleToAccount(ctx, types.ModuleName, buyer, sdk.NewCoins(sdk.NewCoin(plan.TotalAllocation.Denom, tokensOutAmt)))
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
 	// Update plan
@@ -179,14 +258,16 @@ func (k Keeper) BuyExactSpend(ctx sdk.Context, planId string, buyer sdk.AccAddre
 		ClosingPrice: plan.SpotPrice(),
 	})
 	if err != nil {
-		return err
+		return math.ZeroInt(), err
 	}
 
-	return nil
+	return tokensOutAmt, nil
 }
 
 // Sell sells allocation with price according to the price curve
 func (k Keeper) Sell(ctx sdk.Context, planId string, seller sdk.AccAddress, amountTokensToSell, minIncomeAmt math.Int) error {
+	params := k.GetParams(ctx)
+
 	plan, err := k.GetTradeableIRO(ctx, planId, seller)
 	if err != nil {
 		return err
@@ -194,9 +275,20 @@ func (k Keeper) Sell(ctx sdk.Context, planId string, seller sdk.AccAddress, amou
 
 	// Calculate the value of the tokens to sell according to the price curve
 	costAmt := plan.BondingCurve.Cost(plan.SoldAmt.Sub(amountTokensToSell), plan.SoldAmt)
-	costMinusTakerFeeAmt, takerFeeAmt, err := k.ApplyTakerFee(costAmt, k.GetParams(ctx).TakerFee, false)
+	costMinusTakerFeeAmt, takerFeeAmt, err := k.ApplyTakerFee(costAmt, params.TakerFee, false)
 	if err != nil {
 		return err
+	}
+	cost := sdk.NewCoin(plan.LiquidityDenom, costAmt)
+	takerFee := sdk.NewCoin(plan.LiquidityDenom, takerFeeAmt)
+
+	// validate minimal trade amount
+	tradeAmtBaseDenom, err := k.tk.CalcCoinInBaseDenom(ctx, sdk.NewCoin(plan.LiquidityDenom, costAmt))
+	if err != nil {
+		return errorsmod.Wrapf(err, "failed to convert trade amount to base denom")
+	}
+	if !tradeAmtBaseDenom.Amount.GTE(params.MinTradeAmount) {
+		return types.ErrInsufficientTradeAmount
 	}
 
 	// Validate expected out amount
@@ -211,7 +303,7 @@ func (k Keeper) Sell(ctx sdk.Context, planId string, seller sdk.AccAddress, amou
 	}
 
 	// Send liquidity token from the plan to the seller. The liquidity token managed by the plan's module account
-	cost := sdk.NewCoin(plan.LiquidityDenom, costAmt)
+
 	err = k.BK.SendCoins(ctx, plan.GetAddress(), seller, sdk.NewCoins(cost))
 	if err != nil {
 		return err
@@ -222,7 +314,6 @@ func (k Keeper) Sell(ctx sdk.Context, planId string, seller sdk.AccAddress, amou
 	k.SetPlan(ctx, *plan)
 
 	// Charge taker fee
-	takerFee := sdk.NewCoin(plan.LiquidityDenom, takerFeeAmt)
 	owner := k.rk.MustGetRollappOwner(ctx, plan.RollappId)
 	err = k.chargeTakerFee(ctx, takerFee, seller, &owner)
 	if err != nil {
@@ -248,7 +339,7 @@ func (k Keeper) Sell(ctx sdk.Context, planId string, seller sdk.AccAddress, amou
 
 // GetTradeableIRO returns the tradeable IRO plan
 // - plan must exist
-// - plan must not be settled
+// - plan must not be graduated or settled
 // - plan must have started (unless the trader is the owner)
 func (k Keeper) GetTradeableIRO(ctx sdk.Context, planId string, trader sdk.AccAddress) (*types.Plan, error) {
 	plan, found := k.GetPlan(ctx, planId)
@@ -256,17 +347,16 @@ func (k Keeper) GetTradeableIRO(ctx sdk.Context, planId string, trader sdk.AccAd
 		return nil, types.ErrPlanNotFound
 	}
 
-	if plan.IsSettled() {
-		return nil, errorsmod.Wrapf(types.ErrPlanSettled, "planId: %d", plan.Id)
+	if !plan.PreGraduation() {
+		return nil, errorsmod.Wrapf(gerrc.ErrFailedPrecondition, "planId: %d, status: %s", plan.Id, plan.GetGraduationStatus())
 	}
 
-	// Validate start time started (unless the trader is the owner)
+	// Validate trading enabled and start time started (unless the trader is the owner)
 	owner := k.rk.MustGetRollappOwner(ctx, plan.RollappId)
 	if owner.Equals(trader) {
 		return &plan, nil
 	}
 
-	// validate trading enabled
 	if !plan.TradingEnabled {
 		return nil, errorsmod.Wrapf(gerrc.ErrFailedPrecondition, "trading disabled")
 	}
@@ -304,7 +394,7 @@ func (k Keeper) ApplyTakerFee(amount math.Int, takerFee math.LegacyDec, isAdd bo
 		newAmt = amount.Sub(feeAmt)
 	}
 
-	if !newAmt.IsPositive() || !feeAmt.IsPositive() {
+	if !newAmt.IsPositive() {
 		return math.Int{}, math.Int{}, errorsmod.Wrapf(types.ErrInvalidCost, "taking fee resulted in negative amount: %s, fee: %s", newAmt.String(), feeAmt.String())
 	}
 

@@ -172,9 +172,9 @@ func validateInitialSequencer(initialSequencer string) error {
 	}
 
 	seen := make(map[string]struct{})
-	addrs := strings.Split(initialSequencer, ",")
+	addrs := strings.SplitSeq(initialSequencer, ",")
 
-	for _, addr := range addrs {
+	for addr := range addrs {
 		if _, ok := seen[addr]; ok {
 			return ErrInvalidInitialSequencer
 		}
@@ -218,9 +218,8 @@ func (dm DenomMetadata) Validate() error {
 		return fmt.Errorf("invalid metadata display denom: %w", err)
 	}
 
-	// validate exponent
-	if AllowedDecimals(dm.Exponent) != Decimals18 {
-		return fmt.Errorf("invalid exponent")
+	if dm.Exponent == 0 {
+		return fmt.Errorf("exponent must be non-zero")
 	}
 
 	return nil

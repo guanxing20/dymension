@@ -84,11 +84,6 @@ func (lbc BondingCurve) ValidateBasic() error {
 		return errorsmod.Wrapf(ErrInvalidBondingCurve, "c: %s", lbc.C.String())
 	}
 
-	// positive C is supported only for fixed price for now (due to equilibrium calculation)
-	if !lbc.C.IsZero() && !lbc.M.IsZero() {
-		return errorsmod.Wrapf(ErrInvalidBondingCurve, "m: %s, c: %s", lbc.M.String(), lbc.C.String())
-	}
-
 	if !checkPrecision(lbc.N) {
 		return errorsmod.Wrapf(ErrInvalidBondingCurve, "N must have at most %d decimal places", MaxNPrecision)
 	}
@@ -109,6 +104,17 @@ func (lbc BondingCurve) ValidateBasic() error {
 // - returns: the spot price at x, as price per token (e.g 0.1 DYM per token)
 func (lbc BondingCurve) SpotPrice(x math.Int) math.LegacyDec {
 	return lbc.spotPriceInternal(ScaleFromBase(x, lbc.SupplyDecimals()))
+}
+
+// SpotPriceWithPrecision returns the spot price at x, with precision factor for the liquidity denom
+// - x: the current supply, in the base denomination
+// - returns: the spot price at x, as price per base token, considering the precision difference between the rollapp and liquidity denoms
+func (lbc BondingCurve) SpotPriceWithPrecision(x math.Int) math.LegacyDec {
+	precDiff := lbc.RollappDenomDecimals - lbc.LiquidityDenomDecimals
+	if precDiff > 0 {
+		return lbc.SpotPrice(x).QuoInt(math.NewIntWithDecimal(1, int(precDiff))) // #nosec G115
+	}
+	return lbc.SpotPrice(x)
 }
 
 /*
@@ -171,15 +177,14 @@ func (lbc BondingCurve) TokensApproximation(startingX, spendTokens math.LegacyDe
 	}
 
 	// Initial guess for the solution to the bonding curve equation
-	// assuming 1 DYM = 1 token for the initial guess
-	x := spendTokens
+	x := spendTokens.Quo(lbc.spotPriceInternal(startingX))
 
 	// Newton-Raphson iteration
 	epsilonDec := math.LegacyNewDecWithPrec(1, epsilonPrecision)
 	for i := 0; i < maxIterations; i++ {
 		fx := f(x) // diff between spendTokens and the actual cost to get to x
 		// If the function converges, return the result
-		if fx.Abs().LT(epsilonDec) {
+		if !fx.IsPositive() && fx.Abs().LT(epsilonDec) {
 			return x, i, nil
 		}
 		prevX := x

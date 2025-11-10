@@ -22,8 +22,8 @@ var (
 )
 
 var plans = []types.Plan{
-	types.NewPlan(1, "rollapp1", "adym", fooCoin, defaultCurve, time.Hour, defaultIncentives, defaultLiquidityPart, defaultDuration, 0),
-	types.NewPlan(2, "rollapp2", "adym", fooCoin, defaultCurve, time.Hour, defaultIncentives, defaultLiquidityPart, defaultDuration, 0),
+	types.NewPlan(1, "rollapp1", "adym", fooCoin, math.ZeroInt(), defaultCurve, time.Hour, defaultIncentives, defaultLiquidityPart, defaultDuration, 0),
+	types.NewPlan(2, "rollapp2", "adym", fooCoin, math.ZeroInt(), defaultCurve, time.Hour, defaultIncentives, defaultLiquidityPart, defaultDuration, 0),
 }
 
 func TestGenesis(t *testing.T) {
@@ -36,7 +36,7 @@ func TestGenesis(t *testing.T) {
 	iro.InitGenesis(ctx, *k, genesisState)
 
 	// assertions
-	require.Len(t, k.GetAllPlans(ctx, false), 2)
+	require.Len(t, k.GetAllPlans(ctx), 2)
 	_, found := k.GetPlanByRollapp(ctx, "rollapp1")
 	require.True(t, found)
 	lastPlanId := k.GetLastPlanId(ctx)

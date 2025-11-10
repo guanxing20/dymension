@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"slices"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,6 +23,27 @@ func (m msgServer) UpdateParams(goCtx context.Context, req *types.MsgUpdateParam
 	err := req.NewParams.ValidateBasic()
 	if err != nil {
 		return nil, err
+	}
+	/* -------------------------------------------------------------------------- */
+	/*                 stateful validation for standard launch params                 */
+	/* -------------------------------------------------------------------------- */
+	standardLaunch := req.NewParams.StandardLaunch
+
+	// validate target raise denom is allowed
+	allowedDenoms := m.Keeper.gk.GetParams(ctx).AllowedPoolCreationDenoms
+	if !slices.Contains(allowedDenoms, standardLaunch.TargetRaise.Denom) {
+		return nil, errorsmod.Wrap(gerrc.ErrFailedPrecondition, "denom not allowed")
+	}
+
+	// validate the curve is valid, for all allowed liquidity denoms
+	for _, denom := range allowedDenoms {
+		bondingCurve, _, err := m.GetCurveByLiquidityDenom(ctx, denom, standardLaunch)
+		if err != nil {
+			return nil, errorsmod.Wrapf(gerrc.ErrInvalidArgument, "failed to get standard launch curve and graduation point: %v", err.Error())
+		}
+		if err := bondingCurve.ValidateBasic(); err != nil {
+			return nil, errorsmod.Wrapf(gerrc.ErrInvalidArgument, "invalid bonding curve: %v", err.Error())
+		}
 	}
 
 	m.SetParams(ctx, req.NewParams)

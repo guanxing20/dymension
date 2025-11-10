@@ -9,14 +9,14 @@ import (
 )
 
 var (
-	coinType  = reflect.TypeOf(sdk.Coin{})
-	coinsType = reflect.TypeOf(sdk.Coins{})
+	coinType  = reflect.TypeFor[sdk.Coin]()
+	coinsType = reflect.TypeFor[sdk.Coins]()
 )
 
-// Fill analyze all struct fields and slices with
+// Fill analyzes all struct fields and slices with
 // reflection and initialize the nil and empty slices,
 // structs, and pointers.
-func Fill(x interface{}) interface{} {
+func Fill(x any) any {
 	v := reflect.Indirect(reflect.ValueOf(x))
 	switch v.Kind() {
 	case reflect.Slice:

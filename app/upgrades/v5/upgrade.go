@@ -12,6 +12,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
@@ -28,6 +29,7 @@ import (
 	"github.com/dymensionxyz/dymension/v3/app/upgrades/v5/types/lockup"
 	"github.com/dymensionxyz/dymension/v3/app/upgrades/v5/types/rollapp"
 	"github.com/dymensionxyz/dymension/v3/app/upgrades/v5/types/streamer"
+	commontypes "github.com/dymensionxyz/dymension/v3/x/common/types"
 	delayedacktypes "github.com/dymensionxyz/dymension/v3/x/delayedack/types"
 	dymnstypes "github.com/dymensionxyz/dymension/v3/x/dymns/types"
 	eibcmoduletypes "github.com/dymensionxyz/dymension/v3/x/eibc/types"
@@ -37,6 +39,8 @@ import (
 	irotypes "github.com/dymensionxyz/dymension/v3/x/iro/types"
 	lockupkeeper "github.com/dymensionxyz/dymension/v3/x/lockup/keeper"
 	lockuptypes "github.com/dymensionxyz/dymension/v3/x/lockup/types"
+	otcbuybackkeeper "github.com/dymensionxyz/dymension/v3/x/otcbuyback/keeper"
+	otcbuybacktypes "github.com/dymensionxyz/dymension/v3/x/otcbuyback/types"
 	rollappkeeper "github.com/dymensionxyz/dymension/v3/x/rollapp/keeper"
 	rollappmoduletypes "github.com/dymensionxyz/dymension/v3/x/rollapp/types"
 	sequencerkeeper "github.com/dymensionxyz/dymension/v3/x/sequencer/keeper"
@@ -90,6 +94,11 @@ func CreateUpgradeHandler(
 		// add authorized circuit breaker
 		addAuthorizedCircuitBreaker(ctx, keepers.CircuitBreakKeeper, keepers.AccountKeeper)
 
+		err = enableStreamerBurner(ctx, keepers.AccountKeeper)
+		if err != nil {
+			return nil, fmt.Errorf("enable streamer burner: %w", err)
+		}
+
 		/* ----------------------------- params updates ----------------------------- */
 		// new IRO params
 		updateIROParams(ctx, keepers.IROKeeper)
@@ -102,6 +111,9 @@ func CreateUpgradeHandler(
 
 		// update txfees params
 		updateTxfeesParams(ctx, keepers.TxfeesKeeper)
+
+		// update otcbuyback params
+		updateOTCBuybackParams(ctx, keepers.OTCBuybackKeeper, keepers.GAMMKeeper)
 
 		// update params to fast block speed
 		updateParamsToFastBlockSpeed(ctx, keepers)
@@ -213,8 +225,39 @@ func updateTxfeesParams(ctx sdk.Context, k *txfeeskeeper.Keeper) {
 	params.FeeExemptMsgs = []string{
 		sdk.MsgTypeURL(&gammtypes.MsgSwapExactAmountIn{}),
 		sdk.MsgTypeURL(&gammtypes.MsgSwapExactAmountOut{}),
+		sdk.MsgTypeURL(&irotypes.MsgBuy{}),
+		sdk.MsgTypeURL(&irotypes.MsgBuyExactSpend{}),
+		sdk.MsgTypeURL(&irotypes.MsgSell{}),
+		sdk.MsgTypeURL(&otcbuybacktypes.MsgBuy{}),
+		sdk.MsgTypeURL(&otcbuybacktypes.MsgBuyExactSpend{}),
 	}
 	k.SetParams(ctx, params)
+}
+
+func updateOTCBuybackParams(ctx sdk.Context, k *otcbuybackkeeper.Keeper, ammKeeper *gammkeeper.Keeper) {
+	// Set default params with 0.05 smoothing factor
+	params := otcbuybacktypes.DefaultParams()
+	params.MovingAverageSmoothingFactor = math.LegacyNewDecWithPrec(5, 2) // 0.05
+	params.MinPurchaseAmount = commontypes.DYM                            // 1 DYM
+	err := k.SetParams(ctx, params)
+	if err != nil {
+		panic(err)
+	}
+
+	// Set USDC as accepted token
+	poolID := GetNoblePoolID(ctx)
+	spotPrice, err := ammKeeper.CalculateSpotPrice(ctx, poolID, NobleUsdcDenom(ctx), "adym")
+	if err != nil {
+		panic(err)
+	}
+	// Set USDC as accepted token
+	err = k.SetAcceptedToken(ctx, NobleUsdcDenom(ctx), otcbuybacktypes.TokenData{
+		PoolId:           poolID,
+		LastAveragePrice: spotPrice,
+	})
+	if err != nil {
+		panic(err)
+	}
 }
 
 // addAuthorizedCircuitBreaker
@@ -223,7 +266,7 @@ func addAuthorizedCircuitBreaker(ctx sdk.Context, k *circuitkeeper.Keeper, ak *a
 		Level: circuittypes.Permissions_LEVEL_SUPER_ADMIN,
 	}
 
-	for _, grantee := range CircuitBreakPermissioned {
+	for _, grantee := range CircuitBreakPermissioned(ctx) {
 		grantee, err := ak.AddressCodec().StringToBytes(grantee)
 		if err != nil {
 			panic(err)
@@ -240,9 +283,20 @@ func updateIROParams(ctx sdk.Context, k *irokeeper.Keeper) {
 	params := k.GetParams(ctx)
 	defParams := irotypes.DefaultParams()
 
+	params.MinTradeAmount = defParams.MinTradeAmount
+
 	params.MinLiquidityPart = defParams.MinLiquidityPart                                     // default: at least 40% goes to the liquidity pool
 	params.MinVestingDuration = defParams.MinVestingDuration                                 // default: min 7 days
 	params.MinVestingStartTimeAfterSettlement = defParams.MinVestingStartTimeAfterSettlement // default: no enforced minimum by default
+
+	// Fair launch params
+	params.StandardLaunch = defParams.StandardLaunch
+	// overwrite target raise to use mainnet USDC values
+	params.StandardLaunch.TargetRaise = sdk.NewCoin(
+		NobleUsdcDenom(ctx),
+		math.NewIntWithDecimal(10, 3).MulRaw(1e6)) // 10K USDC
+
+	params.StandardLaunch.InitialFdv = math.NewIntWithDecimal(5, 3).MulRaw(1e6) // 5K USDC
 
 	k.SetParams(ctx, params)
 }
@@ -434,6 +488,7 @@ func migrateDeprecatedParamsKeeperSubspaces(ctx sdk.Context, keepers *upgrades.U
 		rollappParams.LivenessSlashInterval,
 		rollappParams.AppRegistrationFee,
 		rollappParams.MinSequencerBondGlobal,
+		newTeeConfig,
 	))
 
 	// Streamer module
@@ -450,6 +505,14 @@ func migrateDeprecatedParamsKeeperSubspaces(ctx sdk.Context, keepers *upgrades.U
 
 	// lockup module params migrations
 	migrateAndUpdateLockupParams(ctx, keepers)
+}
+
+var newTeeConfig = rollappmoduletypes.TEEConfig{
+	Enabled:         false, // will require gov prop to enable, and set the policy info
+	Verify:          false,
+	PolicyValues:    "",
+	PolicyQuery:     "",
+	PolicyStructure: "",
 }
 
 const (
@@ -581,7 +644,7 @@ func updateConsensusParams(ctx sdk.Context, csk *consensusparamkeeper.Keeper) {
 
 // setupRateLimitingParams sets up the rate limiting parameters for Noble USDC and Kava USDT
 func setupRateLimitingParams(ctx sdk.Context, k *ratelimitkeeper.Keeper) error {
-	for _, path := range IBCChannels {
+	for _, path := range IbcChannels(ctx) {
 		// 1-Day Limit (15% send, no receive limit, 24h)
 		err := k.AddRateLimit(ctx, &ratelimittypes.MsgAddRateLimit{
 			Authority:      "", // is not necessary here
@@ -595,5 +658,16 @@ func setupRateLimitingParams(ctx sdk.Context, k *ratelimitkeeper.Keeper) error {
 			return fmt.Errorf("add rate limit: denom: %s, channelID: %s, error: %w", path.Denom, path.ChannelId, err)
 		}
 	}
+	return nil
+}
+
+func enableStreamerBurner(ctx sdk.Context, k *authkeeper.AccountKeeper) error {
+	maccI := k.GetModuleAccount(ctx, streamermoduletypes.ModuleName)
+	macc, ok := maccI.(*authtypes.ModuleAccount)
+	if !ok {
+		return fmt.Errorf("failed to convert ModuleAccountI to *ModuleAccount for x/streamer")
+	}
+	macc.Permissions = append(macc.Permissions, authtypes.Burner)
+	k.SetModuleAccount(ctx, macc)
 	return nil
 }

@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
-	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
@@ -69,7 +68,7 @@ var (
 type EmptyAppOptions struct{}
 
 // Get implements AppOptions
-func (ao EmptyAppOptions) Get(o string) interface{} {
+func (ao EmptyAppOptions) Get(o string) any {
 	return nil
 }
 
@@ -156,7 +155,7 @@ ______   __   __  __   __  _______  __    _  _______  ___   _______  __    _    
 	autoCliOpts.ClientCtx = initClientCtx
 
 	// a workaround to wire the legacy proposals to the cli
-	// autoCli uses AppModule, while the legacy proposals registered on the AppModuleBasic
+	// autoCli uses AppModule, while the legacy proposals are registered on the AppModuleBasic
 	govModule, ok := autoCliOpts.Modules["gov"].(gov.AppModule)
 	if !ok {
 		panic("gov module not found")
@@ -189,7 +188,7 @@ func initCometBFTConfig() *cmtcfg.Config {
 
 // initAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
-func initAppConfig() (string, interface{}) {
+func initAppConfig() (string, any) {
 	baseDenom, err := sdk.GetBaseDenom()
 	if err != nil {
 		panic(err)
@@ -204,7 +203,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig appparams.EncodingConfig
 		ethclient.ValidateChainID(
 			genutilcli.InitCmd(basicManager, app.DefaultNodeHome),
 		),
-		debug.Cmd(),
+		DebugCmds(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp, app.DefaultNodeHome),
 		snapshot.Cmd(newApp),

@@ -75,6 +75,13 @@ func TestFullAppSimulation(t *testing.T) {
 	config := simcli.NewConfigFromFlags()
 	config.ChainID = SimulationAppChainID
 
+	// Configure SDK address prefixes before creating app
+	sdkConfig := types.GetConfig()
+	sdkConfig.SetBech32PrefixForAccount("dym", "dympub")
+	sdkConfig.SetBech32PrefixForValidator("dymvaloper", "dymvaloperpub")
+	sdkConfig.SetBech32PrefixForConsensusNode("dymvalcons", "dymvalconspub")
+	sdkConfig.Seal()
+
 	db, dir, logger, skip, err := simtestutil.SetupSimulation(config, "leveldb-app-sim", "Simulation", simcli.FlagVerboseValue, simcli.FlagEnabledValue)
 	if skip {
 		t.Skip("skipping application simulation")
@@ -145,6 +152,13 @@ func TestAppStateDeterminism(t *testing.T) {
 		t.Skip("skipping application simulation")
 	}
 
+	// Configure SDK address prefixes before creating app
+	sdkConfig := types.GetConfig()
+	sdkConfig.SetBech32PrefixForAccount("dym", "dympub")
+	sdkConfig.SetBech32PrefixForValidator("dymvaloper", "dymvaloperpub")
+	sdkConfig.SetBech32PrefixForConsensusNode("dymvalcons", "dymvalconspub")
+	sdkConfig.Seal()
+
 	config := simcli.NewConfigFromFlags()
 	config.InitialBlockHeight = 1
 	config.ExportParamsPath = ""
@@ -205,7 +219,7 @@ func TestAppStateDeterminism(t *testing.T) {
 			}
 
 			appHash := base64.StdEncoding.EncodeToString(dymdApp.LastCommitID().Hash)
-			fmt.Printf("Seed: %d, appempt: %d/%d, app hash: %s\n", config.Seed, j+1, numTimesToRunPerSeed, appHash)
+			fmt.Printf("Seed: %d, attempt: %d/%d, app hash: %s\n", config.Seed, j+1, numTimesToRunPerSeed, appHash)
 			appHashList[j] = appHash
 
 			if j != 0 {

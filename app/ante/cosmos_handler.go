@@ -11,7 +11,6 @@ import (
 	ethante "github.com/evmos/ethermint/app/ante"
 	txfeesante "github.com/osmosis-labs/osmosis/v15/x/txfees/ante"
 
-	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	evmtypes "github.com/evmos/ethermint/x/evm/types"
 )
 
@@ -31,10 +30,7 @@ func newCosmosAnteHandler(options HandlerOptions) sdk.AnteHandler {
 			WithPredicate(BlockTypeUrls(
 				0,
 				sdk.MsgTypeURL(&evmtypes.MsgEthereumTx{}),
-				sdk.MsgTypeURL(&ibcclienttypes.MsgSubmitMisbehaviour{}), // deprecated. not supposed to be used
-				sdk.MsgTypeURL(&vestingtypes.MsgCreateVestingAccount{}),
-				sdk.MsgTypeURL(&vestingtypes.MsgCreatePeriodicVestingAccount{}),
-				sdk.MsgTypeURL(&vestingtypes.MsgCreatePermanentLockedAccount{}))),
+				sdk.MsgTypeURL(&ibcclienttypes.MsgSubmitMisbehaviour{}))), // blocked to avoid skipping our validation logic in lightclient ante handler
 
 		// Use Mempool Fee TransferEnabledDecorator from our txfees module instead of default one from auth
 		mempoolFeeDecorator,
